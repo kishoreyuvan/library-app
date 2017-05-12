@@ -1,0 +1,26 @@
+<div style="color:#ffffff">
+  <h2 class="text-center">We Will Touch With You</h2>
+<br><br>
+<div class="form-horizontal container">
+<div class="form-group">
+  <label class="col-2 control-label">Email</label>
+  <div class="col-10">
+    {{input type="text" value=model.email class="form-control" }}
+  </div>
+</div>
+<div class="form-group">
+  <label class="col-2 control-label">Message</label>
+  <div class="col-10">
+    {{input type="text" value=model.message class="form-control" }}
+  </div>
+</div>
+<br>
+<div class="form-group">
+  <div class="btn btn-primary btn-block" {{action 'save' model}} disabled={{model.check}}>Feed
+  </div>
+</div>
+</div>
+{{#if response}}
+<div class="alert alert-success">{{response}}</div>
+{{/if}}
+</div>

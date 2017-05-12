@@ -1,0 +1,13 @@
+<h1 class="display-1" style="color:#ffffff">
+   Hello {{model.name}}<br>
+   <br>
+   <div class="h3">Department of {{model.department}}</div>
+ </h1>
+ <div class="well">
+  <ul class="nav nav-pills">
+    {{#link-to 'secure.reserved' tagName="li"}}<a href="">Reserved Books</a>{{/link-to}}
+    {{#link-to 'secure.returned' tagName="li"}}<a href="">Returned Books</a>{{/link-to}}
+    {{#link-to 'secure.list' tagName='li'}}<a href="">Book Search</a>{{/link-to}}
+  </ul>
+</div>
+ {{outlet}}

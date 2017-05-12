@@ -1,0 +1,26 @@
+<table class="table table-bordered " style="color:#ffffff">
+  <thead>
+    <tr>
+      <th>S.no</th>
+      <th>Customer</th>
+      <th>Name</th>
+      <th>Released year</th>
+      <th>Author</th>
+      <th>Booked Time</th>
+      <th>Returned Time</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#each model as |item index|}}
+    <tr>
+      <td>{{number index}}</td>
+      <td>{{item.buyer}}</td>
+      <td>{{item.name}}</td>
+      <td>{{item.releasedyear}}</td>
+      <td>{{item.author}}</td>
+      <td>{{item.ontime}}</td>
+      <td>{{item.offtime}}</td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>

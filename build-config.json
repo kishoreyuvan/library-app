@@ -1,0 +1,7 @@
+{
+  "excludes": [
+    "tests/**",
+    "node_modules",
+    "dist"
+  ]
+}

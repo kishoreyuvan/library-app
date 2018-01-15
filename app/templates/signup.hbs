@@ -1,52 +1,60 @@
-<form class="form-horizontal" style="color:#ffffff;">
+{{#if progress}}
+{{partial 'loading'}}
+{{else}}
+{{#if error}}
+<div class="text-center text-danger" style="height: 100px;">{{error}}</div>
+{{else if success}}
+<div class="text-center text-success" style="height: 100px;">Account Activated Successfully..</div>
+{{/if}}
+<form class="form-horizontal" style="color:#ffffff;" {{action "signup" on="submit"}} >
   <div class="form-group">
     <label for="inputEmail3" class="col-sm-2 control-label">Name</label>
     <div class="col-sm-9">
-      {{input type="string" class="form-control" id="inputEmail3" value=name}}
+      {{input type="string" class="form-control" id="inputEmail3" value=name required=true}}
     </div>
   </div>
   <br>
   <div class="form-group">
     <label for="inputPassword3" class="col-sm-2 control-label">Department</label>
     <div class="col-sm-9">
-      {{input type="string" class="form-control" id="inputPassword3" value=department}}
+      {{input type="string" class="form-control" id="inputPassword3" value=department required=true}}
     </div>
   </div>
   <br>
   <div class="form-group">
     <label for="inputPassword4" class="col-sm-2 control-label">Year</label>
     <div class="col-sm-9">
-      {{input type="number" class="form-control" id="inputPassword4" value=year}}
+      {{input type="number" class="form-control" id="inputPassword4" value=year required=true}}
     </div>
   </div>
   <br>
   <div class="form-group">
     <label for="inputPassword5" class="col-sm-2 control-label">Email</label>
     <div class="col-sm-9">
-      {{input type="email" class="form-control" id="inputPassword5" value=email}}
+      {{input type="email" class="form-control" id="inputPassword5" value=email required=true}}
     </div>
   </div>
   <br>
   <div class="form-group">
     <label for="inputPassword6" class="col-sm-2 control-label">Password</label>
     <div class="col-sm-9">
-      {{input type="password" class="form-control" id="inputPassword6" value=password}}
-      <span class="text-muted">Password must contain 8 letters</span>
+      {{input type="password" class="form-control" id="inputPassword6" value=password required=true}}
+      <span class="text-warning">Strong Password must contain 8 letters</span>
     </div>
   </div>
   <br>
   <div class="form-group">
     <label for="inputPassword7" class="col-sm-2 control-label">Confirm Password</label>
     <div class="col-sm-9">
-      {{input type="password" class="form-control"  id="inputPassword7" value=confirmpassword}}
+      {{input type="password" class="form-control"  id="inputPassword7" value=confirmpassword required=true}}
     </div>
   </div>
   <br>
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-      <button  class="btn btn-success" {{action 'signup' }} disabled={{valid}} >Join</button>
+      <button type="submit" class="btn btn-success" {{action 'signup' }}>Join</button>
     </div>
   </div>
   <br>
 </form>
-{{outlet}}
+{{/if}}

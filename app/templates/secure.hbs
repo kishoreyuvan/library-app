@@ -1,13 +1,41 @@
 <h1 class="display-1" style="color:#ffffff">
-   Hello {{model.name}}<br>
+   Hello <b class="text-primary">{{model.name}}!</b><br>
    <br>
-   <div class="h3">Department of {{model.department}}</div>
+   <div class="h3">Department of <b class="text-warning">{{model.department}}</b></div>
  </h1>
- <div class="well">
-  <ul class="nav nav-pills">
-    {{#link-to 'secure.reserved' tagName="li"}}<a href="">Reserved Books</a>{{/link-to}}
-    {{#link-to 'secure.returned' tagName="li"}}<a href="">Returned Books</a>{{/link-to}}
-    {{#link-to 'secure.list' tagName='li'}}<a href="">Book Search</a>{{/link-to}}
-  </ul>
+
+<div class="well well-lg" >
+<div class="row">
+  <div class="col-xs-6 col-md-4">
+  <div class="thumbnail" >
+    {{#link-to 'secure.reserved' }}
+      <img src="/images/book.png" style="height:100px;width:auto;" alt="...">
+      <div class="caption text-center">
+        <span>Reserved Books</span>
+      </div>
+    {{/link-to}}
+    </div>
+  </div>
+  <div class="col-xs-6 col-md-4">
+    <div class="thumbnail" >
+      {{#link-to 'secure.returned' }}
+      <img src="/images/return.png" style="height:100px;width:auto;" alt="...">
+      <div class="caption text-center">
+        <span>Returned Books</span>
+      </div>
+      {{/link-to}}
+    </div>
+  </div>
+  <div class="col-xs-6 col-md-4">
+  <div class="thumbnail">
+    {{#link-to 'secure.list' }}
+      <img src="/images/list.png"  style="height:100px;width:auto;" alt="...">
+      <div class="caption text-center">
+        <span>Book Search</span>
+      </div>
+    {{/link-to}}
+    </div>
+  </div>
+</div>
 </div>
  {{outlet}}

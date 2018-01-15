@@ -8,12 +8,12 @@ module.exports = function(environment) {
     locationType: 'auto',
     firebase:{
       apiKey: "AIzaSyAT4wBrLLLQLE2nT92CiJ1eUcRhQsWq_u8",
-   authDomain: "library-app-9eaf9.firebaseapp.com",
-   databaseURL: "https://library-app-9eaf9.firebaseio.com",
-   storageBucket: "library-app-9eaf9.appspot.com",
-   messagingSenderId: "689100621193"
- },
- torii: {
+      authDomain: "library-app-9eaf9.firebaseapp.com",
+      databaseURL: "https://library-app-9eaf9.firebaseio.com",
+      storageBucket: "library-app-9eaf9.appspot.com",
+      messagingSenderId: "689100621193"
+    },
+    torii: {
       sessionServiceName: 'session'
     },
     EmberENV: {

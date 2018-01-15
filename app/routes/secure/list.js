@@ -5,9 +5,11 @@ export default Ember.Route.extend({
     return this.store.findAll('book');
   },
   actions:{
+
     book(book) {
     let post=this.store.peekRecord('user',this.get('session.uid'));
     let booking=this.store.createRecord('booking');
+    this.get('controller').set('isloading', true);
     booking.set('name',book.get('name'));
     booking.set('releasedyear',book.get('releasedyear'));
     booking.set('author',book.get('author'));
@@ -19,7 +21,7 @@ export default Ember.Route.extend({
     post.save().then(()=>{
       let x=book.get('noofbooks')-1;
       book.set('noofbooks',x);
-      book.save();
+      book.save().then(()=>{this.get('controller').set('isloading', false);});
     });
 
     }

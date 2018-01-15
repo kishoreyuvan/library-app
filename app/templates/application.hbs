@@ -1,4 +1,4 @@
-<div class="container-fluid" style="font-size:20px;font-family:cursive;background-image: url('/hmk1.jpg');">
+<div class="container-fluid">
 <h1 class="text-center" style="text-shadow:2px 2px 5px;color:#ffffff">Accetians Booklet</h1>
 {{#if session.isAuthenticated}}
 <nav class="navbar navbar-inverse">
@@ -20,7 +20,6 @@
           {{#link-to 'account' tagName='li'}}<a href="#">Home</a>{{/link-to}}
         {{#link-to 'about' tagName='li'}}<a href="#">About</a>{{/link-to}}
         {{#link-to 'feedback' tagName='li'}}<a href="#">Feedback</a>{{/link-to}}
-        <ul class="nav navbar-nav navbar-right">
        <li class="dropdown">
          <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
            Admin<span class="caret"></span>
@@ -33,7 +32,6 @@
             {{#link-to 'admin.add' tagName="li"}}<a href="">Add Book</a>{{/link-to}}
          </ul>
        </li>
-     </ul>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>

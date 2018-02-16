@@ -7,7 +7,7 @@ export default Ember.Route.extend({
   actions:{
     save(feed){
       feed.save().then(()=>{
-        this.get('controller').set('response','Thank you Visit Again');
+        this.get('controller').set('response','Thank you For your Feedback');
       });
     },
     willTransition() {

@@ -15,7 +15,7 @@ export default Ember.Route.extend({
        returns.set('ontime',book.get('time'));
        returns.set('buyer',post.get('name'));
        let time=new Date();
-       returns.set('offtime',time);
+       returns.set('offtime',time.toDateString());
        returns.save();
        post.get('returns').pushObject(returns);
        post.save();

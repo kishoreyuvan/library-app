@@ -1,6 +1,6 @@
 'use strict';
 
-define('library-app/tests/adapters/application.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/adapters/application.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | adapters/application.js');
@@ -9,7 +9,7 @@ define('library-app/tests/adapters/application.jshint.lint-test', ['exports'], f
     assert.ok(true, 'adapters/application.js should pass jshint.');
   });
 });
-define('library-app/tests/app.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/app.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | app.js');
@@ -18,7 +18,25 @@ define('library-app/tests/app.jshint.lint-test', ['exports'], function (exports)
     assert.ok(true, 'app.js should pass jshint.');
   });
 });
-define('library-app/tests/controllers/signup.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/controllers/list.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | controllers/list.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'controllers/list.js should pass jshint.');
+  });
+});
+define('library-app/tests/controllers/login.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | controllers/login.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'controllers/login.js should pass jshint.');
+  });
+});
+define('library-app/tests/controllers/signup.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | controllers/signup.js');
@@ -82,7 +100,7 @@ define('library-app/tests/helpers/destroy-app', ['exports', 'ember'], function (
     _ember['default'].run(application, 'destroy');
   }
 });
-define('library-app/tests/helpers/destroy-app.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/helpers/destroy-app.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | helpers/destroy-app.js');
@@ -136,7 +154,7 @@ define('library-app/tests/helpers/module-for-acceptance', ['exports', 'qunit', '
     });
   };
 });
-define('library-app/tests/helpers/module-for-acceptance.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/helpers/module-for-acceptance.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | helpers/module-for-acceptance.js');
@@ -145,7 +163,7 @@ define('library-app/tests/helpers/module-for-acceptance.jshint.lint-test', ['exp
     assert.ok(true, 'helpers/module-for-acceptance.js should pass jshint.');
   });
 });
-define('library-app/tests/helpers/number.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/helpers/number.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | helpers/number.js');
@@ -202,7 +220,7 @@ define('library-app/tests/helpers/resolver', ['exports', 'library-app/resolver',
 
   exports['default'] = resolver;
 });
-define('library-app/tests/helpers/resolver.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/helpers/resolver.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | helpers/resolver.js');
@@ -229,7 +247,7 @@ define('library-app/tests/helpers/start-app', ['exports', 'ember', 'library-app/
     return application;
   }
 });
-define('library-app/tests/helpers/start-app.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/helpers/start-app.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | helpers/start-app.js');
@@ -306,7 +324,7 @@ define('library-app/tests/helpers/unstub-firebase', ['exports', 'firebase'], fun
     }
   }
 });
-define('library-app/tests/models/book.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/models/book.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | models/book.js');
@@ -315,7 +333,7 @@ define('library-app/tests/models/book.jshint.lint-test', ['exports'], function (
     assert.ok(true, 'models/book.js should pass jshint.');
   });
 });
-define('library-app/tests/models/booking.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/models/booking.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | models/booking.js');
@@ -324,7 +342,7 @@ define('library-app/tests/models/booking.jshint.lint-test', ['exports'], functio
     assert.ok(true, 'models/booking.js should pass jshint.');
   });
 });
-define('library-app/tests/models/feeds.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/models/feeds.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | models/feeds.js');
@@ -333,7 +351,7 @@ define('library-app/tests/models/feeds.jshint.lint-test', ['exports'], function 
     assert.ok(true, 'models/feeds.js should pass jshint.');
   });
 });
-define('library-app/tests/models/returned.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/models/returned.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | models/returned.js');
@@ -342,16 +360,16 @@ define('library-app/tests/models/returned.jshint.lint-test', ['exports'], functi
     assert.ok(true, 'models/returned.js should pass jshint.');
   });
 });
-define('library-app/tests/models/user.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/models/user.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | models/user.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/user.js should pass jshint.\nmodels/user.js: line 2, col 8, \'Ember\' is defined but never used.\n\n1 error');
+    assert.ok(true, 'models/user.js should pass jshint.');
   });
 });
-define('library-app/tests/resolver.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/resolver.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | resolver.js');
@@ -360,7 +378,7 @@ define('library-app/tests/resolver.jshint.lint-test', ['exports'], function (exp
     assert.ok(true, 'resolver.js should pass jshint.');
   });
 });
-define('library-app/tests/router.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/router.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | router.js');
@@ -369,7 +387,7 @@ define('library-app/tests/router.jshint.lint-test', ['exports'], function (expor
     assert.ok(true, 'router.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/about.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/about.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/about.js');
@@ -378,7 +396,7 @@ define('library-app/tests/routes/about.jshint.lint-test', ['exports'], function 
     assert.ok(true, 'routes/about.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/account.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/account.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/account.js');
@@ -387,7 +405,7 @@ define('library-app/tests/routes/account.jshint.lint-test', ['exports'], functio
     assert.ok(true, 'routes/account.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/admin/add.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/admin/add.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/admin/add.js');
@@ -396,7 +414,7 @@ define('library-app/tests/routes/admin/add.jshint.lint-test', ['exports'], funct
     assert.ok(true, 'routes/admin/add.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/admin/books.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/admin/books.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/admin/books.js');
@@ -405,7 +423,7 @@ define('library-app/tests/routes/admin/books.jshint.lint-test', ['exports'], fun
     assert.ok(true, 'routes/admin/books.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/admin/details.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/admin/details.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/admin/details.js');
@@ -414,7 +432,7 @@ define('library-app/tests/routes/admin/details.jshint.lint-test', ['exports'], f
     assert.ok(true, 'routes/admin/details.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/admin/feeds.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/admin/feeds.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/admin/feeds.js');
@@ -423,7 +441,7 @@ define('library-app/tests/routes/admin/feeds.jshint.lint-test', ['exports'], fun
     assert.ok(true, 'routes/admin/feeds.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/admin/users.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/admin/users.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/admin/users.js');
@@ -432,7 +450,7 @@ define('library-app/tests/routes/admin/users.jshint.lint-test', ['exports'], fun
     assert.ok(true, 'routes/admin/users.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/application.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/application.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/application.js');
@@ -441,7 +459,7 @@ define('library-app/tests/routes/application.jshint.lint-test', ['exports'], fun
     assert.ok(true, 'routes/application.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/feedback.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/feedback.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/feedback.js');
@@ -450,7 +468,7 @@ define('library-app/tests/routes/feedback.jshint.lint-test', ['exports'], functi
     assert.ok(true, 'routes/feedback.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/index.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/index.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/index.js');
@@ -459,7 +477,7 @@ define('library-app/tests/routes/index.jshint.lint-test', ['exports'], function 
     assert.ok(true, 'routes/index.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/login.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/login.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/login.js');
@@ -468,7 +486,7 @@ define('library-app/tests/routes/login.jshint.lint-test', ['exports'], function 
     assert.ok(true, 'routes/login.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/secure.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/secure.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/secure.js');
@@ -477,7 +495,7 @@ define('library-app/tests/routes/secure.jshint.lint-test', ['exports'], function
     assert.ok(true, 'routes/secure.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/secure/index.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/secure/index.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/secure/index.js');
@@ -486,7 +504,7 @@ define('library-app/tests/routes/secure/index.jshint.lint-test', ['exports'], fu
     assert.ok(true, 'routes/secure/index.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/secure/list.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/secure/list.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/secure/list.js');
@@ -495,7 +513,7 @@ define('library-app/tests/routes/secure/list.jshint.lint-test', ['exports'], fun
     assert.ok(true, 'routes/secure/list.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/secure/reserved.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/secure/reserved.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/secure/reserved.js');
@@ -504,7 +522,7 @@ define('library-app/tests/routes/secure/reserved.jshint.lint-test', ['exports'],
     assert.ok(true, 'routes/secure/reserved.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/secure/returned.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/secure/returned.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/secure/returned.js');
@@ -513,7 +531,7 @@ define('library-app/tests/routes/secure/returned.jshint.lint-test', ['exports'],
     assert.ok(true, 'routes/secure/returned.js should pass jshint.');
   });
 });
-define('library-app/tests/routes/signup.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/routes/signup.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | routes/signup.js');
@@ -526,7 +544,7 @@ define('library-app/tests/test-helper', ['exports', 'library-app/tests/helpers/r
 
   (0, _emberQunit.setResolver)(_libraryAppTestsHelpersResolver['default']);
 });
-define('library-app/tests/test-helper.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/test-helper.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | test-helper.js');
@@ -535,7 +553,7 @@ define('library-app/tests/test-helper.jshint.lint-test', ['exports'], function (
     assert.ok(true, 'test-helper.js should pass jshint.');
   });
 });
-define('library-app/tests/torii-adapters/application.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/torii-adapters/application.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | torii-adapters/application.js');
@@ -557,7 +575,7 @@ define('library-app/tests/unit/controllers/feedback-test', ['exports', 'ember-qu
     assert.ok(controller);
   });
 });
-define('library-app/tests/unit/controllers/feedback-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/controllers/feedback-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/controllers/feedback-test.js');
@@ -579,7 +597,7 @@ define('library-app/tests/unit/controllers/index-test', ['exports', 'ember-qunit
     assert.ok(controller);
   });
 });
-define('library-app/tests/unit/controllers/index-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/controllers/index-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/controllers/index-test.js');
@@ -601,7 +619,7 @@ define('library-app/tests/unit/controllers/signup-test', ['exports', 'ember-quni
     assert.ok(controller);
   });
 });
-define('library-app/tests/unit/controllers/signup-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/controllers/signup-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/controllers/signup-test.js');
@@ -620,7 +638,7 @@ define('library-app/tests/unit/helpers/number-test', ['exports', 'library-app/he
     assert.ok(result);
   });
 });
-define('library-app/tests/unit/helpers/number-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/helpers/number-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/helpers/number-test.js');
@@ -642,7 +660,7 @@ define('library-app/tests/unit/models/book-test', ['exports', 'ember-qunit'], fu
     assert.ok(!!model);
   });
 });
-define('library-app/tests/unit/models/book-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/models/book-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/models/book-test.js');
@@ -664,7 +682,7 @@ define('library-app/tests/unit/models/booking-test', ['exports', 'ember-qunit'],
     assert.ok(!!model);
   });
 });
-define('library-app/tests/unit/models/booking-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/models/booking-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/models/booking-test.js');
@@ -686,7 +704,7 @@ define('library-app/tests/unit/models/feeds-test', ['exports', 'ember-qunit'], f
     assert.ok(!!model);
   });
 });
-define('library-app/tests/unit/models/feeds-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/models/feeds-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/models/feeds-test.js');
@@ -708,7 +726,7 @@ define('library-app/tests/unit/models/returned-test', ['exports', 'ember-qunit']
     assert.ok(!!model);
   });
 });
-define('library-app/tests/unit/models/returned-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/models/returned-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/models/returned-test.js');
@@ -730,7 +748,7 @@ define('library-app/tests/unit/models/user-test', ['exports', 'ember-qunit'], fu
     assert.ok(!!model);
   });
 });
-define('library-app/tests/unit/models/user-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/models/user-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/models/user-test.js');
@@ -751,7 +769,7 @@ define('library-app/tests/unit/routes/about-test', ['exports', 'ember-qunit'], f
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/about-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/about-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/about-test.js');
@@ -772,7 +790,7 @@ define('library-app/tests/unit/routes/account-test', ['exports', 'ember-qunit'],
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/account-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/account-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/account-test.js');
@@ -793,7 +811,7 @@ define('library-app/tests/unit/routes/add-test', ['exports', 'ember-qunit'], fun
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/add-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/add-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/add-test.js');
@@ -814,7 +832,7 @@ define('library-app/tests/unit/routes/admin-test', ['exports', 'ember-qunit'], f
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/admin-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/admin-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/admin-test.js');
@@ -835,7 +853,7 @@ define('library-app/tests/unit/routes/admin/add-test', ['exports', 'ember-qunit'
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/admin/add-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/admin/add-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/admin/add-test.js');
@@ -856,7 +874,7 @@ define('library-app/tests/unit/routes/admin/books-test', ['exports', 'ember-quni
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/admin/books-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/admin/books-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/admin/books-test.js');
@@ -877,7 +895,7 @@ define('library-app/tests/unit/routes/admin/details-test', ['exports', 'ember-qu
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/admin/details-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/admin/details-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/admin/details-test.js');
@@ -898,7 +916,7 @@ define('library-app/tests/unit/routes/admin/feeds-test', ['exports', 'ember-quni
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/admin/feeds-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/admin/feeds-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/admin/feeds-test.js');
@@ -919,7 +937,7 @@ define('library-app/tests/unit/routes/admin/users-test', ['exports', 'ember-quni
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/admin/users-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/admin/users-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/admin/users-test.js');
@@ -940,7 +958,7 @@ define('library-app/tests/unit/routes/application-test', ['exports', 'ember-quni
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/application-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/application-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/application-test.js');
@@ -961,7 +979,7 @@ define('library-app/tests/unit/routes/feedback-test', ['exports', 'ember-qunit']
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/feedback-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/feedback-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/feedback-test.js');
@@ -982,7 +1000,7 @@ define('library-app/tests/unit/routes/index-test', ['exports', 'ember-qunit'], f
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/index-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/index-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/index-test.js');
@@ -1003,7 +1021,7 @@ define('library-app/tests/unit/routes/login-test', ['exports', 'ember-qunit'], f
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/login-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/login-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/login-test.js');
@@ -1024,7 +1042,7 @@ define('library-app/tests/unit/routes/new-test', ['exports', 'ember-qunit'], fun
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/new-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/new-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/new-test.js');
@@ -1045,7 +1063,7 @@ define('library-app/tests/unit/routes/secure-test', ['exports', 'ember-qunit'], 
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/secure-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/secure-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/secure-test.js');
@@ -1066,7 +1084,7 @@ define('library-app/tests/unit/routes/secure/index-test', ['exports', 'ember-qun
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/secure/index-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/secure/index-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/secure/index-test.js');
@@ -1087,7 +1105,7 @@ define('library-app/tests/unit/routes/secure/list-test', ['exports', 'ember-quni
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/secure/list-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/secure/list-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/secure/list-test.js');
@@ -1108,7 +1126,7 @@ define('library-app/tests/unit/routes/secure/reserved-test', ['exports', 'ember-
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/secure/reserved-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/secure/reserved-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/secure/reserved-test.js');
@@ -1129,7 +1147,7 @@ define('library-app/tests/unit/routes/secure/returned-test', ['exports', 'ember-
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/secure/returned-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/secure/returned-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/secure/returned-test.js');
@@ -1150,7 +1168,7 @@ define('library-app/tests/unit/routes/signup-test', ['exports', 'ember-qunit'], 
     assert.ok(route);
   });
 });
-define('library-app/tests/unit/routes/signup-test.jshint.lint-test', ['exports'], function (exports) {
+define('library-app/tests/unit/routes/signup-test.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | unit/routes/signup-test.js');
@@ -1159,10 +1177,6 @@ define('library-app/tests/unit/routes/signup-test.jshint.lint-test', ['exports']
     assert.ok(true, 'unit/routes/signup-test.js should pass jshint.');
   });
 });
-/* jshint ignore:start */
-
 require('library-app/tests/test-helper');
 EmberENV.TESTS_FILE_LOADED = true;
-
-/* jshint ignore:end */
 //# sourceMappingURL=tests.map

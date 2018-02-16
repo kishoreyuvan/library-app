@@ -1,26 +1,28 @@
 <div style="color:#ffffff">
   <h2 class="text-center">We Will Touch With You</h2>
-<br><br>
-<div class="form-horizontal container">
-<div class="form-group">
-  <label class="col-2 control-label">Email</label>
-  <div class="col-10">
-    {{input type="text" value=model.email class="form-control" }}
-  </div>
-</div>
-<div class="form-group">
-  <label class="col-2 control-label">Message</label>
-  <div class="col-10">
-    {{input type="text" value=model.message class="form-control" }}
+<br>
+{{#if response}}
+<div class="col-md-offset-2 col-md-8 alert alert-success text-center">{{response}}</div>
+{{/if}}
+<br>
+<form class="form-horizontal container" {{action "save" model on="submit"}}>
+<div class="form-group row">
+  <label class="col-md-2 control-label">Email</label>
+  <div class="col-md-8">
+    {{input type="email" value=model.email class="form-control" required=true}}
   </div>
 </div>
 <br>
-<div class="form-group">
-  <div class="btn btn-primary btn-block" {{action 'save' model}} disabled={{model.check}}>Feed
+<div class="form-group row">
+  <label class="col-md-2 control-label">Message</label>
+  <div class="col-md-8">
+    {{input type="text" value=model.message class="form-control" required=true}}
   </div>
 </div>
+<br>
+<div class="form-group row">
+  <button type="submit" class="col-md-offset-5 col-md-2 btn btn-primary">Feed</button>
 </div>
-{{#if response}}
-<div class="alert alert-success">{{response}}</div>
-{{/if}}
+</form>
+
 </div>

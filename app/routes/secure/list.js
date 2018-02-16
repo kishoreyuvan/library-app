@@ -14,7 +14,7 @@ export default Ember.Route.extend({
     booking.set('releasedyear',book.get('releasedyear'));
     booking.set('author',book.get('author'));
     let time=new Date();
-    booking.set('time',time);
+    booking.set('time',time.toDateString());
     booking.set('idno',book.get('id'));
     booking.save();
     post.get('books').pushObject(booking);

@@ -13,7 +13,7 @@ body{
   background-image: url('../images/hmk1.jpg');
   background-position: cover;
   font-family: ProximaNovaRegular, Arial, sans-serif;
-  font-size: 20px;
+  font-size: 15px;
   }
   .feed{
     padding:20px;
@@ -28,6 +28,10 @@ body{
   }
   .thumbnail a:hover {
     text-decoration: none;
+  }
+  .nav .btn {
+    position: relative;
+    top: 10px;
   }
 .outline{
   color:#ffffff;

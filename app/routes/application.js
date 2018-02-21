@@ -5,10 +5,10 @@ export default Ember.Route.extend({
     return this.get('session').fetch().catch(()=>{});
   },
   actions: {
-       logout: function() {
-           this.get('session').close().then(function() {
-               this.transitionTo('application');
-           }.bind(this));
-       }
-   }
+    logout() {
+      this.get('session').close().then(() => {
+        this.transitionTo('application');
+      });
+    }
+  }
 });

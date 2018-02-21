@@ -18,6 +18,15 @@ define('library-app/tests/app.jshint.lint-test', [], function () {
     assert.ok(true, 'app.js should pass jshint.');
   });
 });
+define('library-app/tests/controllers/admin/details.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | controllers/admin/details.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'controllers/admin/details.js should pass jshint.');
+  });
+});
 define('library-app/tests/controllers/list.jshint.lint-test', [], function () {
   'use strict';
 
@@ -36,13 +45,31 @@ define('library-app/tests/controllers/login.jshint.lint-test', [], function () {
     assert.ok(true, 'controllers/login.js should pass jshint.');
   });
 });
+define('library-app/tests/controllers/secure/list.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | controllers/secure/list.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'controllers/secure/list.js should pass jshint.');
+  });
+});
+define('library-app/tests/controllers/secure/reserved.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | controllers/secure/reserved.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'controllers/secure/reserved.js should pass jshint.');
+  });
+});
 define('library-app/tests/controllers/signup.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | controllers/signup.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'controllers/signup.js should pass jshint.');
+    assert.ok(false, 'controllers/signup.js should pass jshint.\ncontrollers/signup.js: line 17, col 54, Missing semicolon.\n\n1 error');
   });
 });
 define('library-app/tests/helpers/create-offline-ref', ['exports', 'firebase'], function (exports, _firebase) {
@@ -483,7 +510,7 @@ define('library-app/tests/routes/login.jshint.lint-test', [], function () {
   QUnit.module('JSHint | routes/login.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'routes/login.js should pass jshint.');
+    assert.ok(false, 'routes/login.js should pass jshint.\nroutes/login.js: line 9, col 42, \'transition\' is defined but never used.\n\n1 error');
   });
 });
 define('library-app/tests/routes/secure.jshint.lint-test', [], function () {
@@ -537,7 +564,7 @@ define('library-app/tests/routes/signup.jshint.lint-test', [], function () {
   QUnit.module('JSHint | routes/signup.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'routes/signup.js should pass jshint.');
+    assert.ok(false, 'routes/signup.js should pass jshint.\nroutes/signup.js: line 4, col 42, \'transition\' is defined but never used.\n\n1 error');
   });
 });
 define('library-app/tests/test-helper', ['exports', 'library-app/tests/helpers/resolver', 'ember-qunit'], function (exports, _libraryAppTestsHelpersResolver, _emberQunit) {
@@ -560,6 +587,28 @@ define('library-app/tests/torii-adapters/application.jshint.lint-test', [], func
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'torii-adapters/application.js should pass jshint.');
+  });
+});
+define('library-app/tests/unit/controllers/admin/details-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('controller:admin/details', 'Unit | Controller | admin/details', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var controller = this.subject();
+    assert.ok(controller);
+  });
+});
+define('library-app/tests/unit/controllers/admin/details-test.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | unit/controllers/admin/details-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/controllers/admin/details-test.js should pass jshint.');
   });
 });
 define('library-app/tests/unit/controllers/feedback-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
@@ -604,6 +653,72 @@ define('library-app/tests/unit/controllers/index-test.jshint.lint-test', [], fun
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/controllers/index-test.js should pass jshint.');
+  });
+});
+define('library-app/tests/unit/controllers/login-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('controller:login', 'Unit | Controller | login', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var controller = this.subject();
+    assert.ok(controller);
+  });
+});
+define('library-app/tests/unit/controllers/login-test.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | unit/controllers/login-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/controllers/login-test.js should pass jshint.');
+  });
+});
+define('library-app/tests/unit/controllers/secure/list-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('controller:secure/list', 'Unit | Controller | secure/list', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var controller = this.subject();
+    assert.ok(controller);
+  });
+});
+define('library-app/tests/unit/controllers/secure/list-test.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | unit/controllers/secure/list-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/controllers/secure/list-test.js should pass jshint.');
+  });
+});
+define('library-app/tests/unit/controllers/secure/reserved-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('controller:secure/reserved', 'Unit | Controller | secure/reserved', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var controller = this.subject();
+    assert.ok(controller);
+  });
+});
+define('library-app/tests/unit/controllers/secure/reserved-test.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | unit/controllers/secure/reserved-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/controllers/secure/reserved-test.js should pass jshint.');
   });
 });
 define('library-app/tests/unit/controllers/signup-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {

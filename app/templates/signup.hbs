@@ -1,10 +1,10 @@
 {{#if progress}}
-{{partial 'loading'}}
+ {{partial 'loading'}}
 {{else}}
 {{#if error}}
-<div class="text-center text-danger" style="height: 100px;">{{error}}</div>
+ <div class="text-center text-danger" style="height: 100px;">{{error}}</div>
 {{else if success}}
-<div class="text-center text-success" style="height: 100px;">Account Activated Successfully..</div>
+ <div class="text-center text-success" style="height: 100px;">Account Activated Successfully..</div>
 {{/if}}
 <form class="form-horizontal" style="color:#ffffff;" {{action "signup" on="submit"}} >
   <div class="form-group">
@@ -39,7 +39,7 @@
     <label for="inputPassword6" class="col-sm-2 control-label">Password</label>
     <div class="col-sm-9">
       {{input type="password" class="form-control" id="inputPassword6" value=password required=true}}
-      <span class="text-warning">Strong Password must contain 8 letters</span>
+      <span class="text-warning">Strong Password must contain 6 letters</span>
     </div>
   </div>
   <br>
@@ -52,7 +52,8 @@
   <br>
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-      <button type="submit" class="btn btn-success" {{action 'signup' }}>Join</button>
+      <button type="submit" class="btn btn-success">Sign Up</button>
+      {{#link-to 'login'}}<button class="btn btn-primary">Go to Login</button>{{/link-to}}
     </div>
   </div>
   <br>

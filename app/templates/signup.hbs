@@ -1,11 +1,6 @@
 {{#if progress}}
  {{partial 'loading'}}
 {{else}}
-{{#if error}}
- <div class="text-center text-danger" style="height: 100px;">{{error}}</div>
-{{else if success}}
- <div class="text-center text-success" style="height: 100px;">Account Activated Successfully..</div>
-{{/if}}
 <form class="form-horizontal" style="color:#ffffff;" {{action "signup" on="submit"}} >
   <div class="form-group">
     <label for="inputEmail3" class="col-sm-2 control-label">Name</label>

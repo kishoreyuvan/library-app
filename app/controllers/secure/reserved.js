@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
+  notifications: Ember.inject.service('notification-messages'),
   actions: {
     returns(book){
       let post = this.store.peekRecord('user', this.get('session.uid'));
@@ -17,7 +18,18 @@ export default Ember.Controller.extend({
       });
       returns.save();
       post.get('returns').pushObject(returns);
-      post.save();
+      post.save().then(() => {
+        this.get('notifications').success('Returned successfully!', {
+          autoClear: true,
+          clearDuration: 1200
+        });
+      }).catch((error) => {
+        this.get('notifications').error(`${error.message}`, {
+          autoClear: true,
+          clearDuration: 1200
+        });
+      })
+
       let x = this.store.peekRecord('book',book.get('idno'));
       let y = x.get('noofbooks');
       x.set('noofbooks', y+1);

@@ -1,35 +1,35 @@
 <div style="color:#ffffff">
   <h2 class="text-center">Add Book in Library</h2>
 <br><br>
-<div class="form-horizontal">
+<form class="form-horizontal" {{action "saveLibrary" model on="submit"}}>
   <div class="form-group">
     <label class="col-sm-4 control-label">Name</label>
     <div class="col-sm-6">
-      {{input type="text" value=model.name class="form-control" }}
+      {{input type="text" value=model.name class="form-control" required=true}}
     </div>
   </div>
   <div class="form-group">
     <label class="col-sm-4 control-label">Released Year</label>
     <div class="col-sm-6">
-      {{input type="number" value=model.releasedyear class="form-control" }}
+      {{input type="number" value=model.releasedyear class="form-control" required=true}}
     </div>
   </div>
   <div class="form-group">
     <label class="col-sm-4 control-label">Author</label>
     <div class="col-sm-6">
-      {{input type="text" value=model.author class="form-control" }}
+      {{input type="text" value=model.author class="form-control" required=true}}
     </div>
   </div>
   <div class="form-group">
     <label class="col-sm-4 control-label">No of Books</label>
     <div class="col-sm-6">
-      {{input type="number" value=model.noofbooks class="form-control" }}
+      {{input type="number" value=model.noofbooks class="form-control" required=true}}
     </div>
   </div>
   <div class="form-group">
     <div class="col-sm-offset-4 col-sm-6">
-      <button type="submit" class="btn btn-primary btn-default" {{action 'saveLibrary' model}}>Add Book</button>
+      <button type="submit" class="btn btn-primary btn-default" >Add Book</button>
     </div>
   </div>
-</div>
+</form>
 </div>{{outlet}}

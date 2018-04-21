@@ -340,7 +340,7 @@ var runningTests = false;
   }
 })(this);
 ;/*!
- * jQuery JavaScript Library v3.2.1
+ * jQuery JavaScript Library v3.3.1
  * https://jquery.com/
  *
  * Includes Sizzle.js
@@ -350,7 +350,7 @@ var runningTests = false;
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2017-03-20T18:59Z
+ * Date: 2018-01-20T17:24Z
  */
 ( function( global, factory ) {
 
@@ -412,16 +412,57 @@ var ObjectFunctionString = fnToString.call( Object );
 
 var support = {};
 
+var isFunction = function isFunction( obj ) {
+
+      // Support: Chrome <=57, Firefox <=52
+      // In some browsers, typeof returns "function" for HTML <object> elements
+      // (i.e., `typeof document.createElement( "object" ) === "function"`).
+      // We don't want to classify *any* DOM node as a function.
+      return typeof obj === "function" && typeof obj.nodeType !== "number";
+  };
 
 
-	function DOMEval( code, doc ) {
+var isWindow = function isWindow( obj ) {
+		return obj != null && obj === obj.window;
+	};
+
+
+
+
+	var preservedScriptAttributes = {
+		type: true,
+		src: true,
+		noModule: true
+	};
+
+	function DOMEval( code, doc, node ) {
 		doc = doc || document;
 
-		var script = doc.createElement( "script" );
+		var i,
+			script = doc.createElement( "script" );
 
 		script.text = code;
+		if ( node ) {
+			for ( i in preservedScriptAttributes ) {
+				if ( node[ i ] ) {
+					script[ i ] = node[ i ];
+				}
+			}
+		}
 		doc.head.appendChild( script ).parentNode.removeChild( script );
 	}
+
+
+function toType( obj ) {
+	if ( obj == null ) {
+		return obj + "";
+	}
+
+	// Support: Android <=2.3 only (functionish RegExp)
+	return typeof obj === "object" || typeof obj === "function" ?
+		class2type[ toString.call( obj ) ] || "object" :
+		typeof obj;
+}
 /* global Symbol */
 // Defining this global in .eslintrc.json would create a danger of using the global
 // unguarded in another place, it seems safer to define global only for this module
@@ -429,7 +470,7 @@ var support = {};
 
 
 var
-	version = "3.2.1",
+	version = "3.3.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -441,16 +482,7 @@ var
 
 	// Support: Android <=4.0 only
 	// Make sure we trim BOM and NBSP
-	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
-
-	// Matches dashed string for camelizing
-	rmsPrefix = /^-ms-/,
-	rdashAlpha = /-([a-z])/g,
-
-	// Used by jQuery.camelCase as callback to replace()
-	fcamelCase = function( all, letter ) {
-		return letter.toUpperCase();
-	};
+	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
 jQuery.fn = jQuery.prototype = {
 
@@ -550,7 +582,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
-	if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {
+	if ( typeof target !== "object" && !isFunction( target ) ) {
 		target = {};
 	}
 
@@ -616,28 +648,6 @@ jQuery.extend( {
 
 	noop: function() {},
 
-	isFunction: function( obj ) {
-		return jQuery.type( obj ) === "function";
-	},
-
-	isWindow: function( obj ) {
-		return obj != null && obj === obj.window;
-	},
-
-	isNumeric: function( obj ) {
-
-		// As of jQuery 3.0, isNumeric is limited to
-		// strings and numbers (primitives or objects)
-		// that can be coerced to finite numbers (gh-2662)
-		var type = jQuery.type( obj );
-		return ( type === "number" || type === "string" ) &&
-
-			// parseFloat NaNs numeric-cast false positives ("")
-			// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
-			// subtraction forces infinities to NaN
-			!isNaN( obj - parseFloat( obj ) );
-	},
-
 	isPlainObject: function( obj ) {
 		var proto, Ctor;
 
@@ -671,27 +681,9 @@ jQuery.extend( {
 		return true;
 	},
 
-	type: function( obj ) {
-		if ( obj == null ) {
-			return obj + "";
-		}
-
-		// Support: Android <=2.3 only (functionish RegExp)
-		return typeof obj === "object" || typeof obj === "function" ?
-			class2type[ toString.call( obj ) ] || "object" :
-			typeof obj;
-	},
-
 	// Evaluates a script in a global context
 	globalEval: function( code ) {
 		DOMEval( code );
-	},
-
-	// Convert dashed to camelCase; used by the css and data modules
-	// Support: IE <=9 - 11, Edge 12 - 13
-	// Microsoft forgot to hump their vendor prefix (#9572)
-	camelCase: function( string ) {
-		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
 
 	each: function( obj, callback ) {
@@ -814,37 +806,6 @@ jQuery.extend( {
 	// A global GUID counter for objects
 	guid: 1,
 
-	// Bind a function to a context, optionally partially applying any
-	// arguments.
-	proxy: function( fn, context ) {
-		var tmp, args, proxy;
-
-		if ( typeof context === "string" ) {
-			tmp = fn[ context ];
-			context = fn;
-			fn = tmp;
-		}
-
-		// Quick check to determine if target is callable, in the spec
-		// this throws a TypeError, but we will just return undefined.
-		if ( !jQuery.isFunction( fn ) ) {
-			return undefined;
-		}
-
-		// Simulated bind
-		args = slice.call( arguments, 2 );
-		proxy = function() {
-			return fn.apply( context || this, args.concat( slice.call( arguments ) ) );
-		};
-
-		// Set the guid of unique handler to the same of original handler, so it can be removed
-		proxy.guid = fn.guid = fn.guid || jQuery.guid++;
-
-		return proxy;
-	},
-
-	now: Date.now,
-
 	// jQuery.support is not used in Core but other projects attach their
 	// properties to it so it needs to exist.
 	support: support
@@ -867,9 +828,9 @@ function isArrayLike( obj ) {
 	// hasOwn isn't used here due to false negatives
 	// regarding Nodelist length in IE
 	var length = !!obj && "length" in obj && obj.length,
-		type = jQuery.type( obj );
+		type = toType( obj );
 
-	if ( type === "function" || jQuery.isWindow( obj ) ) {
+	if ( isFunction( obj ) || isWindow( obj ) ) {
 		return false;
 	}
 
@@ -3189,11 +3150,9 @@ var rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|
 
 
 
-var risSimple = /^.[^:#\[\.,]*$/;
-
 // Implement the identical functionality for filter and not
 function winnow( elements, qualifier, not ) {
-	if ( jQuery.isFunction( qualifier ) ) {
+	if ( isFunction( qualifier ) ) {
 		return jQuery.grep( elements, function( elem, i ) {
 			return !!qualifier.call( elem, i, elem ) !== not;
 		} );
@@ -3213,16 +3172,8 @@ function winnow( elements, qualifier, not ) {
 		} );
 	}
 
-	// Simple selector that can be filtered directly, removing non-Elements
-	if ( risSimple.test( qualifier ) ) {
-		return jQuery.filter( qualifier, elements, not );
-	}
-
-	// Complex selector, compare the two sets, removing non-Elements
-	qualifier = jQuery.filter( qualifier, elements );
-	return jQuery.grep( elements, function( elem ) {
-		return ( indexOf.call( qualifier, elem ) > -1 ) !== not && elem.nodeType === 1;
-	} );
+	// Filtered directly for both simple and complex selectors
+	return jQuery.filter( qualifier, elements, not );
 }
 
 jQuery.filter = function( expr, elems, not ) {
@@ -3343,7 +3294,7 @@ var rootjQuery,
 						for ( match in context ) {
 
 							// Properties of context are called as methods if possible
-							if ( jQuery.isFunction( this[ match ] ) ) {
+							if ( isFunction( this[ match ] ) ) {
 								this[ match ]( context[ match ] );
 
 							// ...and otherwise set as attributes
@@ -3386,7 +3337,7 @@ var rootjQuery,
 
 		// HANDLE: $(function)
 		// Shortcut for document ready
-		} else if ( jQuery.isFunction( selector ) ) {
+		} else if ( isFunction( selector ) ) {
 			return root.ready !== undefined ?
 				root.ready( selector ) :
 
@@ -3701,11 +3652,11 @@ jQuery.Callbacks = function( options ) {
 
 					( function add( args ) {
 						jQuery.each( args, function( _, arg ) {
-							if ( jQuery.isFunction( arg ) ) {
+							if ( isFunction( arg ) ) {
 								if ( !options.unique || !self.has( arg ) ) {
 									list.push( arg );
 								}
-							} else if ( arg && arg.length && jQuery.type( arg ) !== "string" ) {
+							} else if ( arg && arg.length && toType( arg ) !== "string" ) {
 
 								// Inspect recursively
 								add( arg );
@@ -3820,11 +3771,11 @@ function adoptValue( value, resolve, reject, noValue ) {
 	try {
 
 		// Check for promise aspect first to privilege synchronous behavior
-		if ( value && jQuery.isFunction( ( method = value.promise ) ) ) {
+		if ( value && isFunction( ( method = value.promise ) ) ) {
 			method.call( value ).done( resolve ).fail( reject );
 
 		// Other thenables
-		} else if ( value && jQuery.isFunction( ( method = value.then ) ) ) {
+		} else if ( value && isFunction( ( method = value.then ) ) ) {
 			method.call( value, resolve, reject );
 
 		// Other non-thenables
@@ -3882,14 +3833,14 @@ jQuery.extend( {
 						jQuery.each( tuples, function( i, tuple ) {
 
 							// Map tuples (progress, done, fail) to arguments (done, fail, progress)
-							var fn = jQuery.isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
+							var fn = isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
 
 							// deferred.progress(function() { bind to newDefer or newDefer.notify })
 							// deferred.done(function() { bind to newDefer or newDefer.resolve })
 							// deferred.fail(function() { bind to newDefer or newDefer.reject })
 							deferred[ tuple[ 1 ] ]( function() {
 								var returned = fn && fn.apply( this, arguments );
-								if ( returned && jQuery.isFunction( returned.promise ) ) {
+								if ( returned && isFunction( returned.promise ) ) {
 									returned.promise()
 										.progress( newDefer.notify )
 										.done( newDefer.resolve )
@@ -3943,7 +3894,7 @@ jQuery.extend( {
 										returned.then;
 
 									// Handle a returned thenable
-									if ( jQuery.isFunction( then ) ) {
+									if ( isFunction( then ) ) {
 
 										// Special processors (notify) just wait for resolution
 										if ( special ) {
@@ -4039,7 +3990,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onProgress ) ?
+								isFunction( onProgress ) ?
 									onProgress :
 									Identity,
 								newDefer.notifyWith
@@ -4051,7 +4002,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onFulfilled ) ?
+								isFunction( onFulfilled ) ?
 									onFulfilled :
 									Identity
 							)
@@ -4062,7 +4013,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onRejected ) ?
+								isFunction( onRejected ) ?
 									onRejected :
 									Thrower
 							)
@@ -4102,8 +4053,15 @@ jQuery.extend( {
 					// fulfilled_callbacks.disable
 					tuples[ 3 - i ][ 2 ].disable,
 
+					// rejected_handlers.disable
+					// fulfilled_handlers.disable
+					tuples[ 3 - i ][ 3 ].disable,
+
 					// progress_callbacks.lock
-					tuples[ 0 ][ 2 ].lock
+					tuples[ 0 ][ 2 ].lock,
+
+					// progress_handlers.lock
+					tuples[ 0 ][ 3 ].lock
 				);
 			}
 
@@ -4173,7 +4131,7 @@ jQuery.extend( {
 
 			// Use .then() to unwrap secondary thenables (cf. gh-3000)
 			if ( master.state() === "pending" ||
-				jQuery.isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
+				isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
 
 				return master.then();
 			}
@@ -4301,7 +4259,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		bulk = key == null;
 
 	// Sets many values
-	if ( jQuery.type( key ) === "object" ) {
+	if ( toType( key ) === "object" ) {
 		chainable = true;
 		for ( i in key ) {
 			access( elems, fn, i, key[ i ], true, emptyGet, raw );
@@ -4311,7 +4269,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 	} else if ( value !== undefined ) {
 		chainable = true;
 
-		if ( !jQuery.isFunction( value ) ) {
+		if ( !isFunction( value ) ) {
 			raw = true;
 		}
 
@@ -4353,6 +4311,23 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 
 	return len ? fn( elems[ 0 ], key ) : emptyGet;
 };
+
+
+// Matches dashed string for camelizing
+var rmsPrefix = /^-ms-/,
+	rdashAlpha = /-([a-z])/g;
+
+// Used by camelCase as callback to replace()
+function fcamelCase( all, letter ) {
+	return letter.toUpperCase();
+}
+
+// Convert dashed to camelCase; used by the css and data modules
+// Support: IE <=9 - 11, Edge 12 - 15
+// Microsoft forgot to hump their vendor prefix (#9572)
+function camelCase( string ) {
+	return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
+}
 var acceptData = function( owner ) {
 
 	// Accepts only:
@@ -4415,14 +4390,14 @@ Data.prototype = {
 		// Handle: [ owner, key, value ] args
 		// Always use camelCase key (gh-2257)
 		if ( typeof data === "string" ) {
-			cache[ jQuery.camelCase( data ) ] = value;
+			cache[ camelCase( data ) ] = value;
 
 		// Handle: [ owner, { properties } ] args
 		} else {
 
 			// Copy the properties one-by-one to the cache object
 			for ( prop in data ) {
-				cache[ jQuery.camelCase( prop ) ] = data[ prop ];
+				cache[ camelCase( prop ) ] = data[ prop ];
 			}
 		}
 		return cache;
@@ -4432,7 +4407,7 @@ Data.prototype = {
 			this.cache( owner ) :
 
 			// Always use camelCase key (gh-2257)
-			owner[ this.expando ] && owner[ this.expando ][ jQuery.camelCase( key ) ];
+			owner[ this.expando ] && owner[ this.expando ][ camelCase( key ) ];
 	},
 	access: function( owner, key, value ) {
 
@@ -4480,9 +4455,9 @@ Data.prototype = {
 
 				// If key is an array of keys...
 				// We always set camelCase keys, so remove that.
-				key = key.map( jQuery.camelCase );
+				key = key.map( camelCase );
 			} else {
-				key = jQuery.camelCase( key );
+				key = camelCase( key );
 
 				// If a key with the spaces exists, use it.
 				// Otherwise, create an array by matching non-whitespace
@@ -4628,7 +4603,7 @@ jQuery.fn.extend( {
 						if ( attrs[ i ] ) {
 							name = attrs[ i ].name;
 							if ( name.indexOf( "data-" ) === 0 ) {
-								name = jQuery.camelCase( name.slice( 5 ) );
+								name = camelCase( name.slice( 5 ) );
 								dataAttr( elem, name, data[ name ] );
 							}
 						}
@@ -4875,8 +4850,7 @@ var swap = function( elem, options, callback, args ) {
 
 
 function adjustCSS( elem, prop, valueParts, tween ) {
-	var adjusted,
-		scale = 1,
+	var adjusted, scale,
 		maxIterations = 20,
 		currentValue = tween ?
 			function() {
@@ -4894,30 +4868,33 @@ function adjustCSS( elem, prop, valueParts, tween ) {
 
 	if ( initialInUnit && initialInUnit[ 3 ] !== unit ) {
 
+		// Support: Firefox <=54
+		// Halve the iteration target value to prevent interference from CSS upper bounds (gh-2144)
+		initial = initial / 2;
+
 		// Trust units reported by jQuery.css
 		unit = unit || initialInUnit[ 3 ];
-
-		// Make sure we update the tween properties later on
-		valueParts = valueParts || [];
 
 		// Iteratively approximate from a nonzero starting point
 		initialInUnit = +initial || 1;
 
-		do {
+		while ( maxIterations-- ) {
 
-			// If previous iteration zeroed out, double until we get *something*.
-			// Use string for doubling so we don't accidentally see scale as unchanged below
-			scale = scale || ".5";
-
-			// Adjust and apply
-			initialInUnit = initialInUnit / scale;
+			// Evaluate and update our best guess (doubling guesses that zero out).
+			// Finish if the scale equals or crosses 1 (making the old*new product non-positive).
 			jQuery.style( elem, prop, initialInUnit + unit );
+			if ( ( 1 - scale ) * ( 1 - ( scale = currentValue() / initial || 0.5 ) ) <= 0 ) {
+				maxIterations = 0;
+			}
+			initialInUnit = initialInUnit / scale;
 
-		// Update scale, tolerating zero or NaN from tween.cur()
-		// Break the loop if scale is unchanged or perfect, or if we've just had enough.
-		} while (
-			scale !== ( scale = currentValue() / initial ) && scale !== 1 && --maxIterations
-		);
+		}
+
+		initialInUnit = initialInUnit * 2;
+		jQuery.style( elem, prop, initialInUnit + unit );
+
+		// Make sure we update the tween properties later on
+		valueParts = valueParts || [];
 	}
 
 	if ( valueParts ) {
@@ -5035,7 +5012,7 @@ var rcheckableType = ( /^(?:checkbox|radio)$/i );
 
 var rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]+)/i );
 
-var rscriptType = ( /^$|\/(?:java|ecma)script/i );
+var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
 
 
@@ -5117,7 +5094,7 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 		if ( elem || elem === 0 ) {
 
 			// Add nodes directly
-			if ( jQuery.type( elem ) === "object" ) {
+			if ( toType( elem ) === "object" ) {
 
 				// Support: Android <=4.0 only, PhantomJS 1 only
 				// push.apply(_, arraylike) throws on ancient WebKit
@@ -5627,7 +5604,7 @@ jQuery.event = {
 			enumerable: true,
 			configurable: true,
 
-			get: jQuery.isFunction( hook ) ?
+			get: isFunction( hook ) ?
 				function() {
 					if ( this.originalEvent ) {
 							return hook( this.originalEvent );
@@ -5762,7 +5739,7 @@ jQuery.Event = function( src, props ) {
 	}
 
 	// Create a timestamp if incoming event doesn't have one
-	this.timeStamp = src && src.timeStamp || jQuery.now();
+	this.timeStamp = src && src.timeStamp || Date.now();
 
 	// Mark it as fixed
 	this[ jQuery.expando ] = true;
@@ -5961,14 +5938,13 @@ var
 
 	/* eslint-enable */
 
-	// Support: IE <=10 - 11, Edge 12 - 13
+	// Support: IE <=10 - 11, Edge 12 - 13 only
 	// In IE/Edge using regex groups here causes severe slowdowns.
 	// See https://connect.microsoft.com/IE/feedback/details/1736512/
 	rnoInnerhtml = /<script|<style|<link/i,
 
 	// checked="checked" or checked
 	rchecked = /checked\s*(?:[^=]|=\s*.checked.)/i,
-	rscriptTypeMasked = /^true\/(.*)/,
 	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
 
 // Prefer a tbody over its parent table for containing new rows
@@ -5976,7 +5952,7 @@ function manipulationTarget( elem, content ) {
 	if ( nodeName( elem, "table" ) &&
 		nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ) {
 
-		return jQuery( ">tbody", elem )[ 0 ] || elem;
+		return jQuery( elem ).children( "tbody" )[ 0 ] || elem;
 	}
 
 	return elem;
@@ -5988,10 +5964,8 @@ function disableScript( elem ) {
 	return elem;
 }
 function restoreScript( elem ) {
-	var match = rscriptTypeMasked.exec( elem.type );
-
-	if ( match ) {
-		elem.type = match[ 1 ];
+	if ( ( elem.type || "" ).slice( 0, 5 ) === "true/" ) {
+		elem.type = elem.type.slice( 5 );
 	} else {
 		elem.removeAttribute( "type" );
 	}
@@ -6057,15 +6031,15 @@ function domManip( collection, args, callback, ignored ) {
 		l = collection.length,
 		iNoClone = l - 1,
 		value = args[ 0 ],
-		isFunction = jQuery.isFunction( value );
+		valueIsFunction = isFunction( value );
 
 	// We can't cloneNode fragments that contain checked, in WebKit
-	if ( isFunction ||
+	if ( valueIsFunction ||
 			( l > 1 && typeof value === "string" &&
 				!support.checkClone && rchecked.test( value ) ) ) {
 		return collection.each( function( index ) {
 			var self = collection.eq( index );
-			if ( isFunction ) {
+			if ( valueIsFunction ) {
 				args[ 0 ] = value.call( this, index, self.html() );
 			}
 			domManip( self, args, callback, ignored );
@@ -6119,14 +6093,14 @@ function domManip( collection, args, callback, ignored ) {
 						!dataPriv.access( node, "globalEval" ) &&
 						jQuery.contains( doc, node ) ) {
 
-						if ( node.src ) {
+						if ( node.src && ( node.type || "" ).toLowerCase()  !== "module" ) {
 
 							// Optional AJAX dependency, but won't run scripts if not present
 							if ( jQuery._evalUrl ) {
 								jQuery._evalUrl( node.src );
 							}
 						} else {
-							DOMEval( node.textContent.replace( rcleanScript, "" ), doc );
+							DOMEval( node.textContent.replace( rcleanScript, "" ), doc, node );
 						}
 					}
 				}
@@ -6406,8 +6380,6 @@ jQuery.each( {
 		return this.pushStack( ret );
 	};
 } );
-var rmargin = ( /^margin/ );
-
 var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 
 var getStyles = function( elem ) {
@@ -6424,6 +6396,8 @@ var getStyles = function( elem ) {
 		return view.getComputedStyle( elem );
 	};
 
+var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
+
 
 
 ( function() {
@@ -6437,25 +6411,33 @@ var getStyles = function( elem ) {
 			return;
 		}
 
+		container.style.cssText = "position:absolute;left:-11111px;width:60px;" +
+			"margin-top:1px;padding:0;border:0";
 		div.style.cssText =
-			"box-sizing:border-box;" +
-			"position:relative;display:block;" +
+			"position:relative;display:block;box-sizing:border-box;overflow:scroll;" +
 			"margin:auto;border:1px;padding:1px;" +
-			"top:1%;width:50%";
-		div.innerHTML = "";
-		documentElement.appendChild( container );
+			"width:60%;top:1%";
+		documentElement.appendChild( container ).appendChild( div );
 
 		var divStyle = window.getComputedStyle( div );
 		pixelPositionVal = divStyle.top !== "1%";
 
 		// Support: Android 4.0 - 4.3 only, Firefox <=3 - 44
-		reliableMarginLeftVal = divStyle.marginLeft === "2px";
-		boxSizingReliableVal = divStyle.width === "4px";
+		reliableMarginLeftVal = roundPixelMeasures( divStyle.marginLeft ) === 12;
 
-		// Support: Android 4.0 - 4.3 only
+		// Support: Android 4.0 - 4.3 only, Safari <=9.1 - 10.1, iOS <=7.0 - 9.3
 		// Some styles come back with percentage values, even though they shouldn't
-		div.style.marginRight = "50%";
-		pixelMarginRightVal = divStyle.marginRight === "4px";
+		div.style.right = "60%";
+		pixelBoxStylesVal = roundPixelMeasures( divStyle.right ) === 36;
+
+		// Support: IE 9 - 11 only
+		// Detect misreporting of content dimensions for box-sizing:border-box elements
+		boxSizingReliableVal = roundPixelMeasures( divStyle.width ) === 36;
+
+		// Support: IE 9 only
+		// Detect overflow:scroll screwiness (gh-3699)
+		div.style.position = "absolute";
+		scrollboxSizeVal = div.offsetWidth === 36 || "absolute";
 
 		documentElement.removeChild( container );
 
@@ -6464,7 +6446,12 @@ var getStyles = function( elem ) {
 		div = null;
 	}
 
-	var pixelPositionVal, boxSizingReliableVal, pixelMarginRightVal, reliableMarginLeftVal,
+	function roundPixelMeasures( measure ) {
+		return Math.round( parseFloat( measure ) );
+	}
+
+	var pixelPositionVal, boxSizingReliableVal, scrollboxSizeVal, pixelBoxStylesVal,
+		reliableMarginLeftVal,
 		container = document.createElement( "div" ),
 		div = document.createElement( "div" );
 
@@ -6479,26 +6466,26 @@ var getStyles = function( elem ) {
 	div.cloneNode( true ).style.backgroundClip = "";
 	support.clearCloneStyle = div.style.backgroundClip === "content-box";
 
-	container.style.cssText = "border:0;width:8px;height:0;top:0;left:-9999px;" +
-		"padding:0;margin-top:1px;position:absolute";
-	container.appendChild( div );
-
 	jQuery.extend( support, {
-		pixelPosition: function() {
-			computeStyleTests();
-			return pixelPositionVal;
-		},
 		boxSizingReliable: function() {
 			computeStyleTests();
 			return boxSizingReliableVal;
 		},
-		pixelMarginRight: function() {
+		pixelBoxStyles: function() {
 			computeStyleTests();
-			return pixelMarginRightVal;
+			return pixelBoxStylesVal;
+		},
+		pixelPosition: function() {
+			computeStyleTests();
+			return pixelPositionVal;
 		},
 		reliableMarginLeft: function() {
 			computeStyleTests();
 			return reliableMarginLeftVal;
+		},
+		scrollboxSize: function() {
+			computeStyleTests();
+			return scrollboxSizeVal;
 		}
 	} );
 } )();
@@ -6530,7 +6517,7 @@ function curCSS( elem, name, computed ) {
 		// but width seems to be reliably pixels.
 		// This is against the CSSOM draft spec:
 		// https://drafts.csswg.org/cssom/#resolved-values
-		if ( !support.pixelMarginRight() && rnumnonpx.test( ret ) && rmargin.test( name ) ) {
+		if ( !support.pixelBoxStyles() && rnumnonpx.test( ret ) && rboxStyle.test( name ) ) {
 
 			// Remember the original values
 			width = style.width;
@@ -6635,87 +6622,120 @@ function setPositiveNumber( elem, value, subtract ) {
 		value;
 }
 
-function augmentWidthOrHeight( elem, name, extra, isBorderBox, styles ) {
-	var i,
-		val = 0;
+function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computedVal ) {
+	var i = dimension === "width" ? 1 : 0,
+		extra = 0,
+		delta = 0;
 
-	// If we already have the right measurement, avoid augmentation
-	if ( extra === ( isBorderBox ? "border" : "content" ) ) {
-		i = 4;
-
-	// Otherwise initialize for horizontal or vertical properties
-	} else {
-		i = name === "width" ? 1 : 0;
+	// Adjustment may not be necessary
+	if ( box === ( isBorderBox ? "border" : "content" ) ) {
+		return 0;
 	}
 
 	for ( ; i < 4; i += 2 ) {
 
-		// Both box models exclude margin, so add it if we want it
-		if ( extra === "margin" ) {
-			val += jQuery.css( elem, extra + cssExpand[ i ], true, styles );
+		// Both box models exclude margin
+		if ( box === "margin" ) {
+			delta += jQuery.css( elem, box + cssExpand[ i ], true, styles );
 		}
 
-		if ( isBorderBox ) {
+		// If we get here with a content-box, we're seeking "padding" or "border" or "margin"
+		if ( !isBorderBox ) {
 
-			// border-box includes padding, so remove it if we want content
-			if ( extra === "content" ) {
-				val -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			// Add padding
+			delta += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+
+			// For "border" or "margin", add border
+			if ( box !== "padding" ) {
+				delta += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+
+			// But still keep track of it otherwise
+			} else {
+				extra += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 
-			// At this point, extra isn't border nor margin, so remove border
-			if ( extra !== "margin" ) {
-				val -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
-			}
+		// If we get here with a border-box (content + padding + border), we're seeking "content" or
+		// "padding" or "margin"
 		} else {
 
-			// At this point, extra isn't content, so add padding
-			val += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			// For "content", subtract padding
+			if ( box === "content" ) {
+				delta -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			}
 
-			// At this point, extra isn't content nor padding, so add border
-			if ( extra !== "padding" ) {
-				val += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+			// For "content" or "padding", subtract border
+			if ( box !== "margin" ) {
+				delta -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 		}
 	}
 
-	return val;
+	// Account for positive content-box scroll gutter when requested by providing computedVal
+	if ( !isBorderBox && computedVal >= 0 ) {
+
+		// offsetWidth/offsetHeight is a rounded sum of content, padding, scroll gutter, and border
+		// Assuming integer scroll gutter, subtract the rest and round down
+		delta += Math.max( 0, Math.ceil(
+			elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ] -
+			computedVal -
+			delta -
+			extra -
+			0.5
+		) );
+	}
+
+	return delta;
 }
 
-function getWidthOrHeight( elem, name, extra ) {
+function getWidthOrHeight( elem, dimension, extra ) {
 
 	// Start with computed style
-	var valueIsBorderBox,
-		styles = getStyles( elem ),
-		val = curCSS( elem, name, styles ),
-		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
+	var styles = getStyles( elem ),
+		val = curCSS( elem, dimension, styles ),
+		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+		valueIsBorderBox = isBorderBox;
 
-	// Computed unit is not pixels. Stop here and return.
+	// Support: Firefox <=54
+	// Return a confounding non-pixel value or feign ignorance, as appropriate.
 	if ( rnumnonpx.test( val ) ) {
-		return val;
+		if ( !extra ) {
+			return val;
+		}
+		val = "auto";
 	}
 
 	// Check for style in case a browser which returns unreliable values
 	// for getComputedStyle silently falls back to the reliable elem.style
-	valueIsBorderBox = isBorderBox &&
-		( support.boxSizingReliable() || val === elem.style[ name ] );
+	valueIsBorderBox = valueIsBorderBox &&
+		( support.boxSizingReliable() || val === elem.style[ dimension ] );
 
-	// Fall back to offsetWidth/Height when value is "auto"
+	// Fall back to offsetWidth/offsetHeight when value is "auto"
 	// This happens for inline elements with no explicit setting (gh-3571)
-	if ( val === "auto" ) {
-		val = elem[ "offset" + name[ 0 ].toUpperCase() + name.slice( 1 ) ];
+	// Support: Android <=4.1 - 4.3 only
+	// Also use offsetWidth/offsetHeight for misreported inline dimensions (gh-3602)
+	if ( val === "auto" ||
+		!parseFloat( val ) && jQuery.css( elem, "display", false, styles ) === "inline" ) {
+
+		val = elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ];
+
+		// offsetWidth/offsetHeight provide border-box values
+		valueIsBorderBox = true;
 	}
 
-	// Normalize "", auto, and prepare for extra
+	// Normalize "" and auto
 	val = parseFloat( val ) || 0;
 
-	// Use the active box-sizing model to add/subtract irrelevant styles
+	// Adjust for the element's box model
 	return ( val +
-		augmentWidthOrHeight(
+		boxModelAdjustment(
 			elem,
-			name,
+			dimension,
 			extra || ( isBorderBox ? "border" : "content" ),
 			valueIsBorderBox,
-			styles
+			styles,
+
+			// Provide the current computed size to request scroll gutter calculation (gh-3589)
+			val
 		)
 	) + "px";
 }
@@ -6756,9 +6776,7 @@ jQuery.extend( {
 
 	// Add in properties whose names you wish to fix before
 	// setting or getting the value
-	cssProps: {
-		"float": "cssFloat"
-	},
+	cssProps: {},
 
 	// Get and set the style property on a DOM Node
 	style: function( elem, name, value, extra ) {
@@ -6770,7 +6788,7 @@ jQuery.extend( {
 
 		// Make sure that we're working with the right name
 		var ret, type, hooks,
-			origName = jQuery.camelCase( name ),
+			origName = camelCase( name ),
 			isCustomProp = rcustomProp.test( name ),
 			style = elem.style;
 
@@ -6838,7 +6856,7 @@ jQuery.extend( {
 
 	css: function( elem, name, extra, styles ) {
 		var val, num, hooks,
-			origName = jQuery.camelCase( name ),
+			origName = camelCase( name ),
 			isCustomProp = rcustomProp.test( name );
 
 		// Make sure that we're working with the right name. We don't
@@ -6876,8 +6894,8 @@ jQuery.extend( {
 	}
 } );
 
-jQuery.each( [ "height", "width" ], function( i, name ) {
-	jQuery.cssHooks[ name ] = {
+jQuery.each( [ "height", "width" ], function( i, dimension ) {
+	jQuery.cssHooks[ dimension ] = {
 		get: function( elem, computed, extra ) {
 			if ( computed ) {
 
@@ -6893,29 +6911,41 @@ jQuery.each( [ "height", "width" ], function( i, name ) {
 					// in IE throws an error.
 					( !elem.getClientRects().length || !elem.getBoundingClientRect().width ) ?
 						swap( elem, cssShow, function() {
-							return getWidthOrHeight( elem, name, extra );
+							return getWidthOrHeight( elem, dimension, extra );
 						} ) :
-						getWidthOrHeight( elem, name, extra );
+						getWidthOrHeight( elem, dimension, extra );
 			}
 		},
 
 		set: function( elem, value, extra ) {
 			var matches,
-				styles = extra && getStyles( elem ),
-				subtract = extra && augmentWidthOrHeight(
+				styles = getStyles( elem ),
+				isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+				subtract = extra && boxModelAdjustment(
 					elem,
-					name,
+					dimension,
 					extra,
-					jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+					isBorderBox,
 					styles
 				);
+
+			// Account for unreliable border-box dimensions by comparing offset* to computed and
+			// faking a content-box to get border and padding (gh-3699)
+			if ( isBorderBox && support.scrollboxSize() === styles.position ) {
+				subtract -= Math.ceil(
+					elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ] -
+					parseFloat( styles[ dimension ] ) -
+					boxModelAdjustment( elem, dimension, "border", false, styles ) -
+					0.5
+				);
+			}
 
 			// Convert to pixels if value adjustment is needed
 			if ( subtract && ( matches = rcssNum.exec( value ) ) &&
 				( matches[ 3 ] || "px" ) !== "px" ) {
 
-				elem.style[ name ] = value;
-				value = jQuery.css( elem, name );
+				elem.style[ dimension ] = value;
+				value = jQuery.css( elem, dimension );
 			}
 
 			return setPositiveNumber( elem, value, subtract );
@@ -6959,7 +6989,7 @@ jQuery.each( {
 		}
 	};
 
-	if ( !rmargin.test( prefix ) ) {
+	if ( prefix !== "margin" ) {
 		jQuery.cssHooks[ prefix + suffix ].set = setPositiveNumber;
 	}
 } );
@@ -7130,7 +7160,7 @@ function createFxNow() {
 	window.setTimeout( function() {
 		fxNow = undefined;
 	} );
-	return ( fxNow = jQuery.now() );
+	return ( fxNow = Date.now() );
 }
 
 // Generate parameters to create a standard animation
@@ -7234,9 +7264,10 @@ function defaultPrefilter( elem, props, opts ) {
 	// Restrict "overflow" and "display" styles during box animations
 	if ( isBox && elem.nodeType === 1 ) {
 
-		// Support: IE <=9 - 11, Edge 12 - 13
+		// Support: IE <=9 - 11, Edge 12 - 15
 		// Record all 3 overflow attributes because IE does not infer the shorthand
-		// from identically-valued overflowX and overflowY
+		// from identically-valued overflowX and overflowY and Edge just mirrors
+		// the overflowX value there.
 		opts.overflow = [ style.overflow, style.overflowX, style.overflowY ];
 
 		// Identify a display type, preferring old show/hide data over the CSS cascade
@@ -7344,7 +7375,7 @@ function propFilter( props, specialEasing ) {
 
 	// camelCase, specialEasing and expand cssHook pass
 	for ( index in props ) {
-		name = jQuery.camelCase( index );
+		name = camelCase( index );
 		easing = specialEasing[ name ];
 		value = props[ index ];
 		if ( Array.isArray( value ) ) {
@@ -7469,9 +7500,9 @@ function Animation( elem, properties, options ) {
 	for ( ; index < length; index++ ) {
 		result = Animation.prefilters[ index ].call( animation, elem, props, animation.opts );
 		if ( result ) {
-			if ( jQuery.isFunction( result.stop ) ) {
+			if ( isFunction( result.stop ) ) {
 				jQuery._queueHooks( animation.elem, animation.opts.queue ).stop =
-					jQuery.proxy( result.stop, result );
+					result.stop.bind( result );
 			}
 			return result;
 		}
@@ -7479,7 +7510,7 @@ function Animation( elem, properties, options ) {
 
 	jQuery.map( props, createTween, animation );
 
-	if ( jQuery.isFunction( animation.opts.start ) ) {
+	if ( isFunction( animation.opts.start ) ) {
 		animation.opts.start.call( elem, animation );
 	}
 
@@ -7512,7 +7543,7 @@ jQuery.Animation = jQuery.extend( Animation, {
 	},
 
 	tweener: function( props, callback ) {
-		if ( jQuery.isFunction( props ) ) {
+		if ( isFunction( props ) ) {
 			callback = props;
 			props = [ "*" ];
 		} else {
@@ -7544,9 +7575,9 @@ jQuery.Animation = jQuery.extend( Animation, {
 jQuery.speed = function( speed, easing, fn ) {
 	var opt = speed && typeof speed === "object" ? jQuery.extend( {}, speed ) : {
 		complete: fn || !fn && easing ||
-			jQuery.isFunction( speed ) && speed,
+			isFunction( speed ) && speed,
 		duration: speed,
-		easing: fn && easing || easing && !jQuery.isFunction( easing ) && easing
+		easing: fn && easing || easing && !isFunction( easing ) && easing
 	};
 
 	// Go to the end state if fx are off
@@ -7573,7 +7604,7 @@ jQuery.speed = function( speed, easing, fn ) {
 	opt.old = opt.complete;
 
 	opt.complete = function() {
-		if ( jQuery.isFunction( opt.old ) ) {
+		if ( isFunction( opt.old ) ) {
 			opt.old.call( this );
 		}
 
@@ -7737,7 +7768,7 @@ jQuery.fx.tick = function() {
 		i = 0,
 		timers = jQuery.timers;
 
-	fxNow = jQuery.now();
+	fxNow = Date.now();
 
 	for ( ; i < timers.length; i++ ) {
 		timer = timers[ i ];
@@ -8090,7 +8121,7 @@ jQuery.each( [
 
 
 	// Strip and collapse whitespace according to HTML spec
-	// https://html.spec.whatwg.org/multipage/infrastructure.html#strip-and-collapse-whitespace
+	// https://infra.spec.whatwg.org/#strip-and-collapse-ascii-whitespace
 	function stripAndCollapse( value ) {
 		var tokens = value.match( rnothtmlwhite ) || [];
 		return tokens.join( " " );
@@ -8101,20 +8132,30 @@ function getClass( elem ) {
 	return elem.getAttribute && elem.getAttribute( "class" ) || "";
 }
 
+function classesToArray( value ) {
+	if ( Array.isArray( value ) ) {
+		return value;
+	}
+	if ( typeof value === "string" ) {
+		return value.match( rnothtmlwhite ) || [];
+	}
+	return [];
+}
+
 jQuery.fn.extend( {
 	addClass: function( value ) {
 		var classes, elem, cur, curValue, clazz, j, finalValue,
 			i = 0;
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
 				jQuery( this ).addClass( value.call( this, j, getClass( this ) ) );
 			} );
 		}
 
-		if ( typeof value === "string" && value ) {
-			classes = value.match( rnothtmlwhite ) || [];
+		classes = classesToArray( value );
 
+		if ( classes.length ) {
 			while ( ( elem = this[ i++ ] ) ) {
 				curValue = getClass( elem );
 				cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
@@ -8143,7 +8184,7 @@ jQuery.fn.extend( {
 		var classes, elem, cur, curValue, clazz, j, finalValue,
 			i = 0;
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
 				jQuery( this ).removeClass( value.call( this, j, getClass( this ) ) );
 			} );
@@ -8153,9 +8194,9 @@ jQuery.fn.extend( {
 			return this.attr( "class", "" );
 		}
 
-		if ( typeof value === "string" && value ) {
-			classes = value.match( rnothtmlwhite ) || [];
+		classes = classesToArray( value );
 
+		if ( classes.length ) {
 			while ( ( elem = this[ i++ ] ) ) {
 				curValue = getClass( elem );
 
@@ -8185,13 +8226,14 @@ jQuery.fn.extend( {
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var type = typeof value;
+		var type = typeof value,
+			isValidValue = type === "string" || Array.isArray( value );
 
-		if ( typeof stateVal === "boolean" && type === "string" ) {
+		if ( typeof stateVal === "boolean" && isValidValue ) {
 			return stateVal ? this.addClass( value ) : this.removeClass( value );
 		}
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( i ) {
 				jQuery( this ).toggleClass(
 					value.call( this, i, getClass( this ), stateVal ),
@@ -8203,12 +8245,12 @@ jQuery.fn.extend( {
 		return this.each( function() {
 			var className, i, self, classNames;
 
-			if ( type === "string" ) {
+			if ( isValidValue ) {
 
 				// Toggle individual class names
 				i = 0;
 				self = jQuery( this );
-				classNames = value.match( rnothtmlwhite ) || [];
+				classNames = classesToArray( value );
 
 				while ( ( className = classNames[ i++ ] ) ) {
 
@@ -8267,7 +8309,7 @@ var rreturn = /\r/g;
 
 jQuery.fn.extend( {
 	val: function( value ) {
-		var hooks, ret, isFunction,
+		var hooks, ret, valueIsFunction,
 			elem = this[ 0 ];
 
 		if ( !arguments.length ) {
@@ -8296,7 +8338,7 @@ jQuery.fn.extend( {
 			return;
 		}
 
-		isFunction = jQuery.isFunction( value );
+		valueIsFunction = isFunction( value );
 
 		return this.each( function( i ) {
 			var val;
@@ -8305,7 +8347,7 @@ jQuery.fn.extend( {
 				return;
 			}
 
-			if ( isFunction ) {
+			if ( valueIsFunction ) {
 				val = value.call( this, i, jQuery( this ).val() );
 			} else {
 				val = value;
@@ -8447,18 +8489,24 @@ jQuery.each( [ "radio", "checkbox" ], function() {
 // Return jQuery for attributes-only inclusion
 
 
-var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/;
+support.focusin = "onfocusin" in window;
+
+
+var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
+	stopPropagationCallback = function( e ) {
+		e.stopPropagation();
+	};
 
 jQuery.extend( jQuery.event, {
 
 	trigger: function( event, data, elem, onlyHandlers ) {
 
-		var i, cur, tmp, bubbleType, ontype, handle, special,
+		var i, cur, tmp, bubbleType, ontype, handle, special, lastElement,
 			eventPath = [ elem || document ],
 			type = hasOwn.call( event, "type" ) ? event.type : event,
 			namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split( "." ) : [];
 
-		cur = tmp = elem = elem || document;
+		cur = lastElement = tmp = elem = elem || document;
 
 		// Don't do events on text and comment nodes
 		if ( elem.nodeType === 3 || elem.nodeType === 8 ) {
@@ -8510,7 +8558,7 @@ jQuery.extend( jQuery.event, {
 
 		// Determine event propagation path in advance, per W3C events spec (#9951)
 		// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
-		if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
+		if ( !onlyHandlers && !special.noBubble && !isWindow( elem ) ) {
 
 			bubbleType = special.delegateType || type;
 			if ( !rfocusMorph.test( bubbleType + type ) ) {
@@ -8530,7 +8578,7 @@ jQuery.extend( jQuery.event, {
 		// Fire handlers on the event path
 		i = 0;
 		while ( ( cur = eventPath[ i++ ] ) && !event.isPropagationStopped() ) {
-
+			lastElement = cur;
 			event.type = i > 1 ?
 				bubbleType :
 				special.bindType || type;
@@ -8562,7 +8610,7 @@ jQuery.extend( jQuery.event, {
 
 				// Call a native DOM method on the target with the same name as the event.
 				// Don't do default actions on window, that's where global variables be (#6170)
-				if ( ontype && jQuery.isFunction( elem[ type ] ) && !jQuery.isWindow( elem ) ) {
+				if ( ontype && isFunction( elem[ type ] ) && !isWindow( elem ) ) {
 
 					// Don't re-trigger an onFOO event when we call its FOO() method
 					tmp = elem[ ontype ];
@@ -8573,7 +8621,17 @@ jQuery.extend( jQuery.event, {
 
 					// Prevent re-triggering of the same event, since we already bubbled it above
 					jQuery.event.triggered = type;
+
+					if ( event.isPropagationStopped() ) {
+						lastElement.addEventListener( type, stopPropagationCallback );
+					}
+
 					elem[ type ]();
+
+					if ( event.isPropagationStopped() ) {
+						lastElement.removeEventListener( type, stopPropagationCallback );
+					}
+
 					jQuery.event.triggered = undefined;
 
 					if ( tmp ) {
@@ -8619,31 +8677,6 @@ jQuery.fn.extend( {
 } );
 
 
-jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
-	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
-	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
-	function( i, name ) {
-
-	// Handle event binding
-	jQuery.fn[ name ] = function( data, fn ) {
-		return arguments.length > 0 ?
-			this.on( name, null, data, fn ) :
-			this.trigger( name );
-	};
-} );
-
-jQuery.fn.extend( {
-	hover: function( fnOver, fnOut ) {
-		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
-	}
-} );
-
-
-
-
-support.focusin = "onfocusin" in window;
-
-
 // Support: Firefox <=44
 // Firefox doesn't have focus(in | out) events
 // Related ticket - https://bugzilla.mozilla.org/show_bug.cgi?id=687787
@@ -8687,7 +8720,7 @@ if ( !support.focusin ) {
 }
 var location = window.location;
 
-var nonce = jQuery.now();
+var nonce = Date.now();
 
 var rquery = ( /\?/ );
 
@@ -8745,7 +8778,7 @@ function buildParams( prefix, obj, traditional, add ) {
 			}
 		} );
 
-	} else if ( !traditional && jQuery.type( obj ) === "object" ) {
+	} else if ( !traditional && toType( obj ) === "object" ) {
 
 		// Serialize object item.
 		for ( name in obj ) {
@@ -8767,7 +8800,7 @@ jQuery.param = function( a, traditional ) {
 		add = function( key, valueOrFunction ) {
 
 			// If value is a function, invoke it and use its return value
-			var value = jQuery.isFunction( valueOrFunction ) ?
+			var value = isFunction( valueOrFunction ) ?
 				valueOrFunction() :
 				valueOrFunction;
 
@@ -8885,7 +8918,7 @@ function addToPrefiltersOrTransports( structure ) {
 			i = 0,
 			dataTypes = dataTypeExpression.toLowerCase().match( rnothtmlwhite ) || [];
 
-		if ( jQuery.isFunction( func ) ) {
+		if ( isFunction( func ) ) {
 
 			// For each dataType in the dataTypeExpression
 			while ( ( dataType = dataTypes[ i++ ] ) ) {
@@ -9357,7 +9390,7 @@ jQuery.extend( {
 		if ( s.crossDomain == null ) {
 			urlAnchor = document.createElement( "a" );
 
-			// Support: IE <=8 - 11, Edge 12 - 13
+			// Support: IE <=8 - 11, Edge 12 - 15
 			// IE throws exception on accessing the href property if url is malformed,
 			// e.g. http://example.com:80x/
 			try {
@@ -9415,8 +9448,8 @@ jQuery.extend( {
 			// Remember the hash so we can put it back
 			uncached = s.url.slice( cacheURL.length );
 
-			// If data is available, append data to url
-			if ( s.data ) {
+			// If data is available and should be processed, append data to url
+			if ( s.data && ( s.processData || typeof s.data === "string" ) ) {
 				cacheURL += ( rquery.test( cacheURL ) ? "&" : "?" ) + s.data;
 
 				// #9682: remove data so that it's not used in an eventual retry
@@ -9653,7 +9686,7 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 	jQuery[ method ] = function( url, data, callback, type ) {
 
 		// Shift arguments if data argument was omitted
-		if ( jQuery.isFunction( data ) ) {
+		if ( isFunction( data ) ) {
 			type = type || callback;
 			callback = data;
 			data = undefined;
@@ -9691,7 +9724,7 @@ jQuery.fn.extend( {
 		var wrap;
 
 		if ( this[ 0 ] ) {
-			if ( jQuery.isFunction( html ) ) {
+			if ( isFunction( html ) ) {
 				html = html.call( this[ 0 ] );
 			}
 
@@ -9717,7 +9750,7 @@ jQuery.fn.extend( {
 	},
 
 	wrapInner: function( html ) {
-		if ( jQuery.isFunction( html ) ) {
+		if ( isFunction( html ) ) {
 			return this.each( function( i ) {
 				jQuery( this ).wrapInner( html.call( this, i ) );
 			} );
@@ -9737,10 +9770,10 @@ jQuery.fn.extend( {
 	},
 
 	wrap: function( html ) {
-		var isFunction = jQuery.isFunction( html );
+		var htmlIsFunction = isFunction( html );
 
 		return this.each( function( i ) {
-			jQuery( this ).wrapAll( isFunction ? html.call( this, i ) : html );
+			jQuery( this ).wrapAll( htmlIsFunction ? html.call( this, i ) : html );
 		} );
 	},
 
@@ -9832,7 +9865,8 @@ jQuery.ajaxTransport( function( options ) {
 					return function() {
 						if ( callback ) {
 							callback = errorCallback = xhr.onload =
-								xhr.onerror = xhr.onabort = xhr.onreadystatechange = null;
+								xhr.onerror = xhr.onabort = xhr.ontimeout =
+									xhr.onreadystatechange = null;
 
 							if ( type === "abort" ) {
 								xhr.abort();
@@ -9872,7 +9906,7 @@ jQuery.ajaxTransport( function( options ) {
 
 				// Listen to events
 				xhr.onload = callback();
-				errorCallback = xhr.onerror = callback( "error" );
+				errorCallback = xhr.onerror = xhr.ontimeout = callback( "error" );
 
 				// Support: IE 9 only
 				// Use onreadystatechange to replace onabort
@@ -10026,7 +10060,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 	if ( jsonProp || s.dataTypes[ 0 ] === "jsonp" ) {
 
 		// Get callback name, remembering preexisting value associated with it
-		callbackName = s.jsonpCallback = jQuery.isFunction( s.jsonpCallback ) ?
+		callbackName = s.jsonpCallback = isFunction( s.jsonpCallback ) ?
 			s.jsonpCallback() :
 			s.jsonpCallback;
 
@@ -10077,7 +10111,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			}
 
 			// Call if it was a function and we have a response
-			if ( responseContainer && jQuery.isFunction( overwritten ) ) {
+			if ( responseContainer && isFunction( overwritten ) ) {
 				overwritten( responseContainer[ 0 ] );
 			}
 
@@ -10169,7 +10203,7 @@ jQuery.fn.load = function( url, params, callback ) {
 	}
 
 	// If it's a function
-	if ( jQuery.isFunction( params ) ) {
+	if ( isFunction( params ) ) {
 
 		// We assume that it's the callback
 		callback = params;
@@ -10277,7 +10311,7 @@ jQuery.offset = {
 			curLeft = parseFloat( curCSSLeft ) || 0;
 		}
 
-		if ( jQuery.isFunction( options ) ) {
+		if ( isFunction( options ) ) {
 
 			// Use jQuery.extend here to allow modification of coordinates argument (gh-1848)
 			options = options.call( elem, i, jQuery.extend( {}, curOffset ) );
@@ -10300,6 +10334,8 @@ jQuery.offset = {
 };
 
 jQuery.fn.extend( {
+
+	// offset() relates an element's border box to the document origin
 	offset: function( options ) {
 
 		// Preserve chaining for setter
@@ -10311,7 +10347,7 @@ jQuery.fn.extend( {
 				} );
 		}
 
-		var doc, docElem, rect, win,
+		var rect, win,
 			elem = this[ 0 ];
 
 		if ( !elem ) {
@@ -10326,50 +10362,52 @@ jQuery.fn.extend( {
 			return { top: 0, left: 0 };
 		}
 
+		// Get document-relative position by adding viewport scroll to viewport-relative gBCR
 		rect = elem.getBoundingClientRect();
-
-		doc = elem.ownerDocument;
-		docElem = doc.documentElement;
-		win = doc.defaultView;
-
+		win = elem.ownerDocument.defaultView;
 		return {
-			top: rect.top + win.pageYOffset - docElem.clientTop,
-			left: rect.left + win.pageXOffset - docElem.clientLeft
+			top: rect.top + win.pageYOffset,
+			left: rect.left + win.pageXOffset
 		};
 	},
 
+	// position() relates an element's margin box to its offset parent's padding box
+	// This corresponds to the behavior of CSS absolute positioning
 	position: function() {
 		if ( !this[ 0 ] ) {
 			return;
 		}
 
-		var offsetParent, offset,
+		var offsetParent, offset, doc,
 			elem = this[ 0 ],
 			parentOffset = { top: 0, left: 0 };
 
-		// Fixed elements are offset from window (parentOffset = {top:0, left: 0},
-		// because it is its only offset parent
+		// position:fixed elements are offset from the viewport, which itself always has zero offset
 		if ( jQuery.css( elem, "position" ) === "fixed" ) {
 
-			// Assume getBoundingClientRect is there when computed position is fixed
+			// Assume position:fixed implies availability of getBoundingClientRect
 			offset = elem.getBoundingClientRect();
 
 		} else {
-
-			// Get *real* offsetParent
-			offsetParent = this.offsetParent();
-
-			// Get correct offsets
 			offset = this.offset();
-			if ( !nodeName( offsetParent[ 0 ], "html" ) ) {
-				parentOffset = offsetParent.offset();
-			}
 
-			// Add offsetParent borders
-			parentOffset = {
-				top: parentOffset.top + jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ),
-				left: parentOffset.left + jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true )
-			};
+			// Account for the *real* offset parent, which can be the document or its root element
+			// when a statically positioned element is identified
+			doc = elem.ownerDocument;
+			offsetParent = elem.offsetParent || doc.documentElement;
+			while ( offsetParent &&
+				( offsetParent === doc.body || offsetParent === doc.documentElement ) &&
+				jQuery.css( offsetParent, "position" ) === "static" ) {
+
+				offsetParent = offsetParent.parentNode;
+			}
+			if ( offsetParent && offsetParent !== elem && offsetParent.nodeType === 1 ) {
+
+				// Incorporate borders into its offset, since they are outside its content origin
+				parentOffset = jQuery( offsetParent ).offset();
+				parentOffset.top += jQuery.css( offsetParent, "borderTopWidth", true );
+				parentOffset.left += jQuery.css( offsetParent, "borderLeftWidth", true );
+			}
 		}
 
 		// Subtract parent offsets and element margins
@@ -10411,7 +10449,7 @@ jQuery.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( 
 
 			// Coalesce documents and windows
 			var win;
-			if ( jQuery.isWindow( elem ) ) {
+			if ( isWindow( elem ) ) {
 				win = elem;
 			} else if ( elem.nodeType === 9 ) {
 				win = elem.defaultView;
@@ -10469,7 +10507,7 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 			return access( this, function( elem, type, value ) {
 				var doc;
 
-				if ( jQuery.isWindow( elem ) ) {
+				if ( isWindow( elem ) ) {
 
 					// $( window ).outerWidth/Height return w/h including scrollbars (gh-1729)
 					return funcName.indexOf( "outer" ) === 0 ?
@@ -10503,6 +10541,28 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 } );
 
 
+jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
+	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
+	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
+	function( i, name ) {
+
+	// Handle event binding
+	jQuery.fn[ name ] = function( data, fn ) {
+		return arguments.length > 0 ?
+			this.on( name, null, data, fn ) :
+			this.trigger( name );
+	};
+} );
+
+jQuery.fn.extend( {
+	hover: function( fnOver, fnOut ) {
+		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
+	}
+} );
+
+
+
+
 jQuery.fn.extend( {
 
 	bind: function( types, data, fn ) {
@@ -10524,6 +10584,37 @@ jQuery.fn.extend( {
 	}
 } );
 
+// Bind a function to a context, optionally partially applying any
+// arguments.
+// jQuery.proxy is deprecated to promote standards (specifically Function#bind)
+// However, it is not slated for removal any time soon
+jQuery.proxy = function( fn, context ) {
+	var tmp, args, proxy;
+
+	if ( typeof context === "string" ) {
+		tmp = fn[ context ];
+		context = fn;
+		fn = tmp;
+	}
+
+	// Quick check to determine if target is callable, in the spec
+	// this throws a TypeError, but we will just return undefined.
+	if ( !isFunction( fn ) ) {
+		return undefined;
+	}
+
+	// Simulated bind
+	args = slice.call( arguments, 2 );
+	proxy = function() {
+		return fn.apply( context || this, args.concat( slice.call( arguments ) ) );
+	};
+
+	// Set the guid of unique handler to the same of original handler, so it can be removed
+	proxy.guid = fn.guid = fn.guid || jQuery.guid++;
+
+	return proxy;
+};
+
 jQuery.holdReady = function( hold ) {
 	if ( hold ) {
 		jQuery.readyWait++;
@@ -10534,6 +10625,26 @@ jQuery.holdReady = function( hold ) {
 jQuery.isArray = Array.isArray;
 jQuery.parseJSON = JSON.parse;
 jQuery.nodeName = nodeName;
+jQuery.isFunction = isFunction;
+jQuery.isWindow = isWindow;
+jQuery.camelCase = camelCase;
+jQuery.type = toType;
+
+jQuery.now = Date.now;
+
+jQuery.isNumeric = function( obj ) {
+
+	// As of jQuery 3.0, isNumeric is limited to
+	// strings and numbers (primitives or objects)
+	// that can be coerced to finite numbers (gh-2662)
+	var type = jQuery.type( obj );
+	return ( type === "number" || type === "string" ) &&
+
+		// parseFloat NaNs numeric-cast false positives ("")
+		// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
+		// subtraction forces infinities to NaN
+		!isNaN( obj - parseFloat( obj ) );
+};
 
 
 
@@ -10601,7 +10712,7 @@ return jQuery;
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.18.0
+ * @version   2.18.2
  */
 
 /*global process */
@@ -20318,25 +20429,42 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             return this._setTimeout(fn, executeAt);
         };
 
-        Backburner.prototype.throttle = function throttle(target, method) /*, ...args, wait, [immediate] */{
+        Backburner.prototype.throttle = function throttle(targetOrThisArgOrMethod) {
             var _this2 = this;
 
-            for (var _len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
-                args[_key4 - 2] = arguments[_key4];
-            }
-
-            var immediate = args.pop();
+            var target = void 0;
+            var method = void 0;
+            var immediate = void 0;
             var isImmediate = void 0;
             var wait = void 0;
-            if (isCoercableNumber(immediate)) {
-                wait = immediate;
+
+            for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+                args[_key4 - 1] = arguments[_key4];
+            }
+
+            if (args.length === 1) {
+                method = targetOrThisArgOrMethod;
+                wait = args.pop();
+                target = null;
                 isImmediate = true;
             } else {
-                wait = args.pop();
-                isImmediate = immediate === true;
-            }
-            if (isString(method)) {
-                method = target[method];
+                target = targetOrThisArgOrMethod;
+                method = args.shift();
+                immediate = args.pop();
+                if (isString(method)) {
+                    method = target[method];
+                } else if (!isFunction(method)) {
+                    args.unshift(method);
+                    method = target;
+                    target = null;
+                }
+                if (isCoercableNumber(immediate)) {
+                    wait = immediate;
+                    isImmediate = true;
+                } else {
+                    wait = args.pop();
+                    isImmediate = immediate === true;
+                }
             }
             var index = findItem(target, method, this._throttlers);
             if (index > -1) {
@@ -20363,25 +20491,42 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             return timer;
         };
 
-        Backburner.prototype.debounce = function debounce(target, method) /* , wait, [immediate] */{
+        Backburner.prototype.debounce = function debounce(targetOrThisArgOrMethod) {
             var _this3 = this;
 
-            for (var _len5 = arguments.length, args = Array(_len5 > 2 ? _len5 - 2 : 0), _key5 = 2; _key5 < _len5; _key5++) {
-                args[_key5 - 2] = arguments[_key5];
-            }
-
-            var immediate = args.pop();
+            var target = void 0;
+            var method = void 0;
+            var immediate = void 0;
             var isImmediate = void 0;
             var wait = void 0;
-            if (isCoercableNumber(immediate)) {
-                wait = immediate;
+
+            for (var _len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+                args[_key5 - 1] = arguments[_key5];
+            }
+
+            if (args.length === 1) {
+                method = targetOrThisArgOrMethod;
+                wait = args.pop();
+                target = null;
                 isImmediate = false;
             } else {
-                wait = args.pop();
-                isImmediate = immediate === true;
-            }
-            if (isString(method)) {
-                method = target[method];
+                target = targetOrThisArgOrMethod;
+                method = args.shift();
+                immediate = args.pop();
+                if (isString(method)) {
+                    method = target[method];
+                } else if (!isFunction(method)) {
+                    args.unshift(method);
+                    method = target;
+                    target = null;
+                }
+                if (isCoercableNumber(immediate)) {
+                    wait = immediate;
+                    isImmediate = false;
+                } else {
+                    wait = args.pop();
+                    isImmediate = immediate === true;
+                }
             }
             wait = parseInt(wait, 10);
             // Remove debouncee
@@ -28075,8 +28220,11 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime
             for (var i = 0; i < destroyedComponents.length; i++) {
                 destroyedComponents[i].destroy();
             }
-            _GlimmerEnvironment.prototype.commit.call(this);
-            this.inTransaction = false;
+            try {
+                _GlimmerEnvironment.prototype.commit.call(this);
+            } finally {
+                this.inTransaction = false;
+            }
         };
 
         return Environment;
@@ -30167,6 +30315,9 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference'
             } finally {
                 if (!completedWithoutError) {
                     this._lastRevision = _reference.CURRENT_TAG.value();
+                    if (this._env.inTransaction === true) {
+                        this._env.commit();
+                    }
                 }
                 this._isRenderingRoots = false;
             }
@@ -53466,7 +53617,7 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
 
   exports.default = compileOptions;
   exports.registerPlugin = registerPlugin;
-  exports.removePlugin = removePlugin;
+  exports.unregisterPlugin = unregisterPlugin;
 
 
   var USER_PLUGINS = [];
@@ -53484,13 +53635,47 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
       options.plugins = { ast: [].concat(USER_PLUGINS, _plugins.default) };
     } else {
       var potententialPugins = [].concat(USER_PLUGINS, _plugins.default);
+      var providedPlugins = options.plugins.ast.map(function (plugin) {
+        return wrapLegacyPluginIfNeeded(plugin);
+      });
       var pluginsToAdd = potententialPugins.filter(function (plugin) {
         return options.plugins.ast.indexOf(plugin) === -1;
       });
-      options.plugins.ast = options.plugins.ast.slice().concat(pluginsToAdd);
+      options.plugins.ast = providedPlugins.concat(pluginsToAdd);
     }
 
     return options;
+  }
+
+  function wrapLegacyPluginIfNeeded(_plugin) {
+    var plugin = _plugin;
+    if (_plugin.prototype && _plugin.prototype.transform) {
+      plugin = function (env) {
+        var pluginInstantiated = false;
+
+        return {
+          name: _plugin.constructor && _plugin.constructor.name,
+
+          visitors: {
+            Program: function (node) {
+              if (!pluginInstantiated) {
+
+                pluginInstantiated = true;
+                var _plugin2 = new _plugin(env);
+
+                _plugin2.syntax = env.syntax;
+
+                return _plugin2.transform(node);
+              }
+            }
+          }
+        };
+      };
+
+      plugin.__raw = _plugin;
+    }
+
+    return plugin;
   }
 
   function registerPlugin(type, _plugin) {
@@ -53498,37 +53683,25 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
       throw new Error('Attempting to register ' + _plugin + ' as "' + type + '" which is not a valid Glimmer plugin type.');
     }
 
-    var plugin = void 0;
-    if (_plugin.prototype && _plugin.prototype.transform) {
-      plugin = function (env) {
-        return {
-          name: _plugin.constructor && _plugin.constructor.name,
-
-          visitors: {
-            Program: function (node) {
-              var plugin = new _plugin(env);
-
-              plugin.syntax = env.syntax;
-
-              return plugin.transform(node);
-            }
-          }
-        };
-      };
-    } else {
-      plugin = _plugin;
+    for (var i = 0; i < USER_PLUGINS.length; i++) {
+      var PLUGIN = USER_PLUGINS[i];
+      if (PLUGIN === _plugin || PLUGIN.__raw === _plugin) {
+        return;
+      }
     }
+
+    var plugin = wrapLegacyPluginIfNeeded(_plugin);
 
     USER_PLUGINS = [plugin].concat(USER_PLUGINS);
   }
 
-  function removePlugin(type, PluginClass) {
+  function unregisterPlugin(type, PluginClass) {
     if (type !== 'ast') {
       throw new Error('Attempting to unregister ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
     }
 
     USER_PLUGINS = USER_PLUGINS.filter(function (plugin) {
-      return plugin !== PluginClass;
+      return plugin !== PluginClass && plugin.__raw !== PluginClass;
     });
   }
 });
@@ -58313,7 +58486,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.18.0";
+  exports.default = "2.18.2";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -68700,11 +68873,297 @@ createDeprecatedModule('resolver');
   }
 })();
 
-;define('ember-ajax/ajax-request', ['exports', 'ember', 'ember-ajax/mixins/ajax-request'], function (exports, _ember, _emberAjaxMixinsAjaxRequest) {
-  var EmberObject = _ember['default'].Object;
-  exports['default'] = EmberObject.extend(_emberAjaxMixinsAjaxRequest['default']);
+;define('ember-ajax/-private/promise', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  function _possibleConstructorReturn(self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  }
+
+  var _get = function get(object, property, receiver) {
+    if (object === null) object = Function.prototype;
+    var desc = Object.getOwnPropertyDescriptor(object, property);
+
+    if (desc === undefined) {
+      var parent = Object.getPrototypeOf(object);
+
+      if (parent === null) {
+        return undefined;
+      } else {
+        return get(parent, property, receiver);
+      }
+    } else if ("value" in desc) {
+      return desc.value;
+    } else {
+      var getter = desc.get;
+
+      if (getter === undefined) {
+        return undefined;
+      }
+
+      return getter.call(receiver);
+    }
+  };
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  }
+
+  var AJAXPromise = function (_EmberRSVPPromise) {
+    _inherits(AJAXPromise, _EmberRSVPPromise);
+
+    function AJAXPromise() {
+      _classCallCheck(this, AJAXPromise);
+
+      return _possibleConstructorReturn(this, (AJAXPromise.__proto__ || Object.getPrototypeOf(AJAXPromise)).apply(this, arguments));
+    }
+
+    _createClass(AJAXPromise, [{
+      key: 'then',
+      value: function then() {
+        var child = _get(AJAXPromise.prototype.__proto__ || Object.getPrototypeOf(AJAXPromise.prototype), 'then', this).apply(this, arguments);
+
+        child.xhr = this.xhr;
+
+        return child;
+      }
+    }]);
+
+    return AJAXPromise;
+  }(Ember.RSVP.Promise);
+
+  exports.default = AJAXPromise;
 });
-;define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
+;define('ember-ajax/-private/utils/get-header', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = getHeader;
+
+
+  /**
+   * Do a case-insensitive lookup of an HTTP header
+   *
+   * @function getHeader
+   * @private
+   * @param {Object} headers
+   * @param {string} name
+   * @return {string}
+   */
+  function getHeader(headers, name) {
+    if (Ember.isNone(headers) || Ember.isNone(name)) {
+      return; // ask for nothing, get nothing.
+    }
+
+    var matchedKey = Ember.A(Object.keys(headers)).find(function (key) {
+      return key.toLowerCase() === name.toLowerCase();
+    });
+
+    return headers[matchedKey];
+  }
+});
+;define('ember-ajax/-private/utils/is-fastboot', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  /* global FastBoot */
+  var isFastBoot = typeof FastBoot !== 'undefined';
+  exports.default = isFastBoot;
+});
+;define('ember-ajax/-private/utils/is-string', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = isString;
+  function isString(object) {
+    return typeof object === 'string';
+  }
+});
+;define('ember-ajax/-private/utils/parse-response-headers', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = parseResponseHeaders;
+
+  function _toArray(arr) {
+    return Array.isArray(arr) ? arr : Array.from(arr);
+  }
+
+  var CRLF = exports.CRLF = '\r\n';
+
+  function parseResponseHeaders(headersString) {
+    var headers = {};
+
+    if (!headersString) {
+      return headers;
+    }
+
+    return headersString.split(CRLF).reduce(function (hash, header) {
+      var _header$split = header.split(':'),
+          _header$split2 = _toArray(_header$split),
+          field = _header$split2[0],
+          value = _header$split2.slice(1);
+
+      field = field.trim();
+      value = value.join(':').trim();
+
+      if (value) {
+        hash[field] = value;
+      }
+
+      return hash;
+    }, headers);
+  }
+});
+;define('ember-ajax/-private/utils/url-helpers', ['exports', 'require', 'ember-ajax/-private/utils/is-fastboot'], function (exports, _require2, _isFastboot) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.parseURL = parseURL;
+  exports.isFullURL = isFullURL;
+  exports.haveSameHost = haveSameHost;
+  /* eslint-env browser, node */
+
+  var completeUrlRegex = /^(http|https)/;
+
+  /*
+   * Isomorphic URL parsing
+   * Borrowed from
+   * http://www.sitepoint.com/url-parsing-isomorphic-javascript/
+   */
+  var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  var url = function () {
+    if (_isFastboot.default) {
+      // ember-fastboot-server provides the node url module as URL global
+      return URL;
+    }
+
+    if (isNode) {
+      return (0, _require2.default)('url');
+    }
+
+    return document.createElement('a');
+  }();
+
+  /**
+   * Parse a URL string into an object that defines its structure
+   *
+   * The returned object will have the following properties:
+   *
+   *   href: the full URL
+   *   protocol: the request protocol
+   *   hostname: the target for the request
+   *   port: the port for the request
+   *   pathname: any URL after the host
+   *   search: query parameters
+   *   hash: the URL hash
+   *
+   * @function parseURL
+   * @private
+   * @param {string} str The string to parse
+   * @return {Object} URL structure
+   */
+  function parseURL(str) {
+    var fullObject = void 0;
+
+    if (isNode || _isFastboot.default) {
+      fullObject = url.parse(str);
+    } else {
+      url.href = str;
+      fullObject = url;
+    }
+
+    var desiredProps = {};
+    desiredProps.href = fullObject.href;
+    desiredProps.protocol = fullObject.protocol;
+    desiredProps.hostname = fullObject.hostname;
+    desiredProps.port = fullObject.port;
+    desiredProps.pathname = fullObject.pathname;
+    desiredProps.search = fullObject.search;
+    desiredProps.hash = fullObject.hash;
+    return desiredProps;
+  }
+
+  function isFullURL(url) {
+    return url.match(completeUrlRegex);
+  }
+
+  function haveSameHost(a, b) {
+    a = parseURL(a);
+    b = parseURL(b);
+
+    return a.protocol === b.protocol && a.hostname === b.hostname && a.port === b.port;
+  }
+});
+;define('ember-ajax/ajax-request', ['exports', 'ember-ajax/mixins/ajax-request'], function (exports, _ajaxRequest) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Ember.Object.extend(_ajaxRequest.default);
+});
+;define('ember-ajax/errors', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   exports.AjaxError = AjaxError;
   exports.InvalidError = InvalidError;
   exports.UnauthorizedError = UnauthorizedError;
@@ -68726,34 +69185,32 @@ createDeprecatedModule('resolver');
   exports.isConflictError = isConflictError;
   exports.isServerError = isServerError;
   exports.isSuccess = isSuccess;
-  var EmberError = _ember['default'].Error;
+
 
   /**
    * @class AjaxError
-   * @private
+   * @public
+   * @extends Ember.Error
    */
+  function AjaxError(payload) {
+    var message = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Ajax operation failed';
+    var status = arguments[2];
 
-  function AjaxError(errors) {
-    var message = arguments.length <= 1 || arguments[1] === undefined ? 'Ajax operation failed' : arguments[1];
+    Ember.Error.call(this, message);
 
-    EmberError.call(this, message);
-
-    this.errors = errors || [{
-      title: 'Ajax Error',
-      detail: message
-    }];
+    this.payload = payload;
+    this.status = status;
   }
 
-  AjaxError.prototype = Object.create(EmberError.prototype);
+  AjaxError.prototype = Object.create(Ember.Error.prototype);
 
   /**
    * @class InvalidError
    * @public
    * @extends AjaxError
    */
-
-  function InvalidError(errors) {
-    AjaxError.call(this, errors, 'Request was rejected because it was invalid');
+  function InvalidError(payload) {
+    AjaxError.call(this, payload, 'Request was rejected because it was invalid', 422);
   }
 
   InvalidError.prototype = Object.create(AjaxError.prototype);
@@ -68763,9 +69220,8 @@ createDeprecatedModule('resolver');
    * @public
    * @extends AjaxError
    */
-
-  function UnauthorizedError(errors) {
-    AjaxError.call(this, errors, 'Ajax authorization failed');
+  function UnauthorizedError(payload) {
+    AjaxError.call(this, payload, 'Ajax authorization failed', 401);
   }
 
   UnauthorizedError.prototype = Object.create(AjaxError.prototype);
@@ -68775,9 +69231,8 @@ createDeprecatedModule('resolver');
    * @public
    * @extends AjaxError
    */
-
-  function ForbiddenError(errors) {
-    AjaxError.call(this, errors, 'Request was rejected because user is not permitted to perform this operation.');
+  function ForbiddenError(payload) {
+    AjaxError.call(this, payload, 'Request was rejected because user is not permitted to perform this operation.', 403);
   }
 
   ForbiddenError.prototype = Object.create(AjaxError.prototype);
@@ -68787,9 +69242,8 @@ createDeprecatedModule('resolver');
    * @public
    * @extends AjaxError
    */
-
-  function BadRequestError(errors) {
-    AjaxError.call(this, errors, 'Request was formatted incorrectly.');
+  function BadRequestError(payload) {
+    AjaxError.call(this, payload, 'Request was formatted incorrectly.', 400);
   }
 
   BadRequestError.prototype = Object.create(AjaxError.prototype);
@@ -68799,9 +69253,8 @@ createDeprecatedModule('resolver');
    * @public
    * @extends AjaxError
    */
-
-  function NotFoundError(errors) {
-    AjaxError.call(this, errors, 'Resource was not found.');
+  function NotFoundError(payload) {
+    AjaxError.call(this, payload, 'Resource was not found.', 404);
   }
 
   NotFoundError.prototype = Object.create(AjaxError.prototype);
@@ -68811,9 +69264,8 @@ createDeprecatedModule('resolver');
    * @public
    * @extends AjaxError
    */
-
   function TimeoutError() {
-    AjaxError.call(this, null, 'The ajax operation timed out');
+    AjaxError.call(this, null, 'The ajax operation timed out', -1);
   }
 
   TimeoutError.prototype = Object.create(AjaxError.prototype);
@@ -68823,9 +69275,8 @@ createDeprecatedModule('resolver');
    * @public
    * @extends AjaxError
    */
-
   function AbortError() {
-    AjaxError.call(this, null, 'The ajax operation was aborted');
+    AjaxError.call(this, null, 'The ajax operation was aborted', 0);
   }
 
   AbortError.prototype = Object.create(AjaxError.prototype);
@@ -68835,9 +69286,8 @@ createDeprecatedModule('resolver');
    * @public
    * @extends AjaxError
    */
-
-  function ConflictError(errors) {
-    AjaxError.call(this, errors, 'The ajax operation failed due to a conflict');
+  function ConflictError(payload) {
+    AjaxError.call(this, payload, 'The ajax operation failed due to a conflict', 409);
   }
 
   ConflictError.prototype = Object.create(AjaxError.prototype);
@@ -68847,9 +69297,8 @@ createDeprecatedModule('resolver');
    * @public
    * @extends AjaxError
    */
-
-  function ServerError(errors) {
-    AjaxError.call(this, errors, 'Request was rejected due to server error');
+  function ServerError(payload, status) {
+    AjaxError.call(this, payload, 'Request was rejected due to server error', status);
   }
 
   ServerError.prototype = Object.create(AjaxError.prototype);
@@ -68862,7 +69311,6 @@ createDeprecatedModule('resolver');
    * @param  {Error} error
    * @return {Boolean}
    */
-
   function isAjaxError(error) {
     return error instanceof AjaxError;
   }
@@ -68876,7 +69324,6 @@ createDeprecatedModule('resolver');
    * @param  {Number | AjaxError} error
    * @return {Boolean}
    */
-
   function isUnauthorizedError(error) {
     if (isAjaxError(error)) {
       return error instanceof UnauthorizedError;
@@ -68894,7 +69341,6 @@ createDeprecatedModule('resolver');
    * @param  {Number | AjaxError} error
    * @return {Boolean}
    */
-
   function isForbiddenError(error) {
     if (isAjaxError(error)) {
       return error instanceof ForbiddenError;
@@ -68912,7 +69358,6 @@ createDeprecatedModule('resolver');
    * @param  {Number | AjaxError} error
    * @return {Boolean}
    */
-
   function isInvalidError(error) {
     if (isAjaxError(error)) {
       return error instanceof InvalidError;
@@ -68930,7 +69375,6 @@ createDeprecatedModule('resolver');
    * @param  {Number | AjaxError} error
    * @return {Boolean}
    */
-
   function isBadRequestError(error) {
     if (isAjaxError(error)) {
       return error instanceof BadRequestError;
@@ -68948,7 +69392,6 @@ createDeprecatedModule('resolver');
    * @param  {Number | AjaxError} error
    * @return {Boolean}
    */
-
   function isNotFoundError(error) {
     if (isAjaxError(error)) {
       return error instanceof NotFoundError;
@@ -68966,7 +69409,6 @@ createDeprecatedModule('resolver');
    * @param  {AjaxError} error
    * @return {Boolean}
    */
-
   function isTimeoutError(error) {
     return error instanceof TimeoutError;
   }
@@ -68980,7 +69422,6 @@ createDeprecatedModule('resolver');
    * @param  {AjaxError} error
    * @return {Boolean}
    */
-
   function isAbortError(error) {
     if (isAjaxError(error)) {
       return error instanceof AbortError;
@@ -68998,7 +69439,6 @@ createDeprecatedModule('resolver');
    * @param  {Number | AjaxError} error
    * @return {Boolean}
    */
-
   function isConflictError(error) {
     if (isAjaxError(error)) {
       return error instanceof ConflictError;
@@ -69015,7 +69455,6 @@ createDeprecatedModule('resolver');
    * @param  {Number | AjaxError} error
    * @return {Boolean}
    */
-
   function isServerError(error) {
     if (isAjaxError(error)) {
       return error instanceof ServerError;
@@ -69032,45 +69471,69 @@ createDeprecatedModule('resolver');
    * @param  {Number} status
    * @return {Boolean}
    */
-
   function isSuccess(status) {
     var s = parseInt(status, 10);
+
     return s >= 200 && s < 300 || s === 304;
   }
 });
-;define('ember-ajax/index', ['exports', 'ember-ajax/request'], function (exports, _emberAjaxRequest) {
+;define('ember-ajax/index', ['exports', 'ember-ajax/request'], function (exports, _request) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   Object.defineProperty(exports, 'default', {
     enumerable: true,
-    get: function get() {
-      return _emberAjaxRequest['default'];
+    get: function () {
+      return _request.default;
     }
   });
 });
-;define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors', 'ember-ajax/utils/parse-response-headers', 'ember-ajax/utils/get-header', 'ember-ajax/utils/url-helpers', 'ember-ajax/utils/ajax'], function (exports, _ember, _emberAjaxErrors, _emberAjaxUtilsParseResponseHeaders, _emberAjaxUtilsGetHeader, _emberAjaxUtilsUrlHelpers, _emberAjaxUtilsAjax) {
-  var $ = _ember['default'].$;
-  var A = _ember['default'].A;
-  var EmberError = _ember['default'].Error;
-  var Logger = _ember['default'].Logger;
-  var Mixin = _ember['default'].Mixin;
-  var Promise = _ember['default'].RSVP.Promise;
-  var Test = _ember['default'].Test;
-  var get = _ember['default'].get;
-  var isArray = _ember['default'].isArray;
-  var isEmpty = _ember['default'].isEmpty;
-  var isNone = _ember['default'].isNone;
-  var merge = _ember['default'].merge;
-  var run = _ember['default'].run;
-  var runInDebug = _ember['default'].runInDebug;
-  var testing = _ember['default'].testing;
-  var warn = _ember['default'].warn;
+;define('ember-ajax/mixins/ajax-request', ['exports', 'ember-ajax/errors', 'ember-ajax/utils/ajax', 'ember-ajax/-private/utils/parse-response-headers', 'ember-ajax/-private/utils/get-header', 'ember-ajax/-private/utils/url-helpers', 'ember-ajax/-private/utils/is-string', 'ember-ajax/-private/promise'], function (exports, _errors, _ajax, _parseResponseHeaders, _getHeader, _urlHelpers, _isString, _promise) {
+  'use strict';
 
-  var JSONAPIContentType = /^application\/vnd\.api\+json/i;
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
 
-  function isJSONAPIContentType(header) {
-    if (isNone(header)) {
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
+
+  var Logger = Ember.Logger,
+      Test = Ember.Test,
+      testing = Ember.testing;
+
+  var JSONContentType = /^application\/(?:vnd\.api\+)?json/i;
+
+  function isJSONContentType(header) {
+    if (!(0, _isString.default)(header)) {
       return false;
     }
-    return !!header.match(JSONAPIContentType);
+    return !!header.match(JSONContentType);
+  }
+
+  function isJSONStringifyable(method, _ref) {
+    var contentType = _ref.contentType,
+        data = _ref.data,
+        headers = _ref.headers;
+
+    if (method === 'GET') {
+      return false;
+    }
+
+    if (!isJSONContentType(contentType) && !isJSONContentType((0, _getHeader.default)(headers, 'Content-Type'))) {
+      return false;
+    }
+
+    if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== 'object') {
+      return false;
+    }
+
+    return true;
   }
 
   function startsWithSlash(string) {
@@ -69081,10 +69544,14 @@ createDeprecatedModule('resolver');
     return string.charAt(string.length - 1) === '/';
   }
 
+  function removeLeadingSlash(string) {
+    return string.substring(1);
+  }
+
   function stripSlashes(path) {
     // make sure path starts with `/`
     if (startsWithSlash(path)) {
-      path = path.substring(1);
+      path = removeLeadingSlash(path);
     }
 
     // remove end `/`
@@ -69092,14 +69559,6 @@ createDeprecatedModule('resolver');
       path = path.slice(0, -1);
     }
     return path;
-  }
-
-  function isObject(object) {
-    return typeof object === 'object';
-  }
-
-  function isString(object) {
-    return typeof object === 'string';
   }
 
   var pendingRequestCount = 0;
@@ -69115,8 +69574,7 @@ createDeprecatedModule('resolver');
    * @public
    * @mixin
    */
-  exports['default'] = Mixin.create({
-
+  exports.default = Ember.Mixin.create({
     /**
      * The default value for the request `contentType`
      *
@@ -69216,21 +69674,26 @@ createDeprecatedModule('resolver');
      * @return {Promise} The result of the request
      */
     request: function request(url, options) {
-      var _this = this;
-
       var hash = this.options(url, options);
-      return new Promise(function (resolve, reject) {
-        _this._makeRequest(hash).then(function (_ref) {
-          var response = _ref.response;
+      var internalPromise = this._makeRequest(hash);
+
+      var ajaxPromise = new _promise.default(function (resolve, reject) {
+        internalPromise.then(function (_ref2) {
+          var response = _ref2.response;
 
           resolve(response);
-        })['catch'](function (_ref2) {
-          var response = _ref2.response;
+        }).catch(function (_ref3) {
+          var response = _ref3.response;
 
           reject(response);
         });
       }, 'ember-ajax: ' + hash.type + ' ' + hash.url + ' response');
+
+      ajaxPromise.xhr = internalPromise.xhr;
+
+      return ajaxPromise;
     },
+
 
     /**
      * Make an AJAX request, returning the raw XHR object along with the response
@@ -69246,6 +69709,7 @@ createDeprecatedModule('resolver');
       return this._makeRequest(hash);
     },
 
+
     /**
      * Shared method to actually make an AJAX request
      *
@@ -69256,62 +69720,62 @@ createDeprecatedModule('resolver');
      * @return {Promise} The result of the request
      */
     _makeRequest: function _makeRequest(hash) {
-      var _this2 = this;
+      var _this = this;
 
       var method = hash.method || hash.type || 'GET';
       var requestData = { method: method, type: method, url: hash.url };
 
-      if (isJSONAPIContentType((0, _emberAjaxUtilsGetHeader['default'])(hash.headers, 'Content-Type')) && requestData.type !== 'GET') {
-        if (typeof hash.data === 'object') {
-          hash.data = JSON.stringify(hash.data);
-        }
+      if (isJSONStringifyable(method, hash)) {
+        hash.data = JSON.stringify(hash.data);
       }
 
-      return new Promise(function (resolve, reject) {
-        hash.success = function (payload, textStatus, jqXHR) {
-          var response = _this2.handleResponse(jqXHR.status, (0, _emberAjaxUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), payload, requestData);
+      pendingRequestCount = pendingRequestCount + 1;
 
-          pendingRequestCount = pendingRequestCount - 1;
+      var jqXHR = (0, _ajax.default)(hash);
 
-          if ((0, _emberAjaxErrors.isAjaxError)(response)) {
-            run.join(null, reject, { payload: payload, textStatus: textStatus, jqXHR: jqXHR, response: response });
+      var promise = new _promise.default(function (resolve, reject) {
+        jqXHR.done(function (payload, textStatus, jqXHR) {
+          var response = _this.handleResponse(jqXHR.status, (0, _parseResponseHeaders.default)(jqXHR.getAllResponseHeaders()), payload, requestData);
+
+          if ((0, _errors.isAjaxError)(response)) {
+            Ember.run.join(null, reject, { payload: payload, textStatus: textStatus, jqXHR: jqXHR, response: response });
           } else {
-            run.join(null, resolve, { payload: payload, textStatus: textStatus, jqXHR: jqXHR, response: response });
+            Ember.run.join(null, resolve, { payload: payload, textStatus: textStatus, jqXHR: jqXHR, response: response });
           }
-        };
-
-        hash.error = function (jqXHR, textStatus, errorThrown) {
-          runInDebug(function () {
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+          Ember.runInDebug(function () {
             var message = 'The server returned an empty string for ' + requestData.type + ' ' + requestData.url + ', which cannot be parsed into a valid JSON. Return either null or {}.';
             var validJSONString = !(textStatus === 'parsererror' && jqXHR.responseText === '');
-            warn(message, validJSONString, {
+
+            (true && Ember.warn(message, validJSONString, {
               id: 'ds.adapter.returned-empty-string-as-JSON'
-            });
+            }));
           });
 
-          var payload = _this2.parseErrorResponse(jqXHR.responseText) || errorThrown;
-          var response = undefined;
+          var payload = _this.parseErrorResponse(jqXHR.responseText) || errorThrown;
+          var response = void 0;
 
           if (errorThrown instanceof Error) {
             response = errorThrown;
           } else if (textStatus === 'timeout') {
-            response = new _emberAjaxErrors.TimeoutError();
+            response = new _errors.TimeoutError();
           } else if (textStatus === 'abort') {
-            response = new _emberAjaxErrors.AbortError();
+            response = new _errors.AbortError();
           } else {
-            response = _this2.handleResponse(jqXHR.status, (0, _emberAjaxUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), payload, requestData);
+            response = _this.handleResponse(jqXHR.status, (0, _parseResponseHeaders.default)(jqXHR.getAllResponseHeaders()), payload, requestData);
           }
 
+          Ember.run.join(null, reject, { payload: payload, textStatus: textStatus, jqXHR: jqXHR, errorThrown: errorThrown, response: response });
+        }).always(function () {
           pendingRequestCount = pendingRequestCount - 1;
-
-          run.join(null, reject, { payload: payload, textStatus: textStatus, jqXHR: jqXHR, errorThrown: errorThrown, response: response });
-        };
-
-        pendingRequestCount = pendingRequestCount + 1;
-
-        (0, _emberAjaxUtilsAjax['default'])(hash);
+        });
       }, 'ember-ajax: ' + hash.type + ' ' + hash.url);
+
+      promise.xhr = jqXHR;
+
+      return promise;
     },
+
 
     /**
      * calls `request()` but forces `options.type` to `POST`
@@ -69326,6 +69790,7 @@ createDeprecatedModule('resolver');
       return this.request(url, this._addTypeToOptionsFor(options, 'POST'));
     },
 
+
     /**
      * calls `request()` but forces `options.type` to `PUT`
      *
@@ -69338,6 +69803,7 @@ createDeprecatedModule('resolver');
     put: function put(url, options) {
       return this.request(url, this._addTypeToOptionsFor(options, 'PUT'));
     },
+
 
     /**
      * calls `request()` but forces `options.type` to `PATCH`
@@ -69352,6 +69818,7 @@ createDeprecatedModule('resolver');
       return this.request(url, this._addTypeToOptionsFor(options, 'PATCH'));
     },
 
+
     /**
      * calls `request()` but forces `options.type` to `DELETE`
      *
@@ -69365,6 +69832,7 @@ createDeprecatedModule('resolver');
       return this.request(url, this._addTypeToOptionsFor(options, 'DELETE'));
     },
 
+
     /**
      * calls `request()` but forces `options.type` to `DELETE`
      *
@@ -69376,9 +69844,10 @@ createDeprecatedModule('resolver');
      * @param {Object} options The options for the request
      * @return {Promise} The result of the request
      */
-    'delete': function _delete() {
+    delete: function _delete() {
       return this.del.apply(this, arguments);
     },
+
 
     /**
      * Wrap the `.get` method so that we issue a warning if
@@ -69390,11 +69859,12 @@ createDeprecatedModule('resolver');
      * @public
      */
     get: function get(url) {
-      if (arguments.length > 1 || url.charAt(0) === '/') {
-        throw new EmberError('It seems you tried to use `.get` to make a request! Use the `.request` method instead.');
+      if (arguments.length > 1 || url.indexOf('/') !== -1) {
+        throw new Ember.Error('It seems you tried to use `.get` to make a request! Use the `.request` method instead.');
       }
       return this._super.apply(this, arguments);
     },
+
 
     /**
      * Manipulates the options hash to include the HTTP method on the type key
@@ -69411,6 +69881,7 @@ createDeprecatedModule('resolver');
       return options;
     },
 
+
     /**
      * Get the full "headers" hash, combining the service-defined headers with
      * the ones provided for the request
@@ -69421,10 +69892,11 @@ createDeprecatedModule('resolver');
      * @return {Object}
      */
     _getFullHeadersHash: function _getFullHeadersHash(headers) {
-      var classHeaders = get(this, 'headers');
-      var _headers = merge({}, classHeaders);
-      return merge(_headers, headers);
+      var classHeaders = Ember.get(this, 'headers');
+      var _headers = Ember.merge({}, classHeaders);
+      return Ember.merge(_headers, headers);
     },
+
 
     /**
      * @method options
@@ -69434,22 +69906,23 @@ createDeprecatedModule('resolver');
      * @return {Object}
      */
     options: function options(url) {
-      var _options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      _options = merge({}, _options);
-      _options.url = this._buildURL(url, _options);
-      _options.type = _options.type || 'GET';
-      _options.dataType = _options.dataType || 'json';
-      _options.contentType = isEmpty(_options.contentType) ? get(this, 'contentType') : _options.contentType;
+      options = Ember.merge({}, options);
+      options.url = this._buildURL(url, options);
+      options.type = options.type || 'GET';
+      options.dataType = options.dataType || 'json';
+      options.contentType = Ember.isEmpty(options.contentType) ? Ember.get(this, 'contentType') : options.contentType;
 
-      if (this._shouldSendHeaders(_options)) {
-        _options.headers = this._getFullHeadersHash(_options.headers);
+      if (this._shouldSendHeaders(options)) {
+        options.headers = this._getFullHeadersHash(options.headers);
       } else {
-        _options.headers = _options.headers || {};
+        options.headers = options.headers || {};
       }
 
-      return _options;
+      return options;
     },
+
 
     /**
      * Build a URL for a request
@@ -69466,19 +69939,24 @@ createDeprecatedModule('resolver');
      * @returns {string} the URL to make a request to
      */
     _buildURL: function _buildURL(url) {
-      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      var urlObject = new _emberAjaxUtilsUrlHelpers.RequestURL(url);
-
-      // If the URL passed is not relative, return the whole URL
-      if (urlObject.isComplete) {
-        return urlObject.href;
+      if ((0, _urlHelpers.isFullURL)(url)) {
+        return url;
       }
 
-      var host = options.host || get(this, 'host');
-      var namespace = options.namespace || get(this, 'namespace');
+      var urlParts = [];
+
+      var host = options.host || Ember.get(this, 'host');
+      if (host) {
+        host = stripSlashes(host);
+      }
+      urlParts.push(host);
+
+      var namespace = options.namespace || Ember.get(this, 'namespace');
       if (namespace) {
         namespace = stripSlashes(namespace);
+        urlParts.push(namespace);
       }
 
       // If the URL has already been constructed (presumably, by Ember Data), then we should just leave it alone
@@ -69487,28 +69965,16 @@ createDeprecatedModule('resolver');
         return url;
       }
 
-      var fullUrl = '';
-      // Add the host, if it exists
-      if (host) {
-        fullUrl += host;
+      // *Only* remove a leading slash -- we need to maintain a trailing slash for
+      // APIs that differentiate between it being and not being present
+      if (startsWithSlash(url)) {
+        url = removeLeadingSlash(url);
       }
-      // Add the namespace, if it exists
-      if (namespace) {
-        if (!endsWithSlash(fullUrl)) {
-          fullUrl += '/';
-        }
-        fullUrl += namespace;
-      }
-      // Add the URL segment, if it exists
-      if (url) {
-        if (!startsWithSlash(url)) {
-          fullUrl += '/';
-        }
-        fullUrl += url;
-      }
+      urlParts.push(url);
 
-      return fullUrl;
+      return urlParts.join('/');
     },
+
 
     /**
      * Takes an ajax response, and returns the json payload or an error.
@@ -69531,32 +69997,43 @@ createDeprecatedModule('resolver');
      * @return {Object | AjaxError} response
      */
     handleResponse: function handleResponse(status, headers, payload, requestData) {
-      payload = payload === null || payload === undefined ? {} : payload;
-      var errors = this.normalizeErrorResponse(status, headers, payload);
-
       if (this.isSuccess(status, headers, payload)) {
         return payload;
-      } else if (this.isUnauthorizedError(status, headers, payload)) {
-        return new _emberAjaxErrors.UnauthorizedError(errors);
-      } else if (this.isForbiddenError(status, headers, payload)) {
-        return new _emberAjaxErrors.ForbiddenError(errors);
-      } else if (this.isInvalidError(status, headers, payload)) {
-        return new _emberAjaxErrors.InvalidError(errors);
-      } else if (this.isBadRequestError(status, headers, payload)) {
-        return new _emberAjaxErrors.BadRequestError(errors);
-      } else if (this.isNotFoundError(status, headers, payload)) {
-        return new _emberAjaxErrors.NotFoundError(errors);
-      } else if (this.isAbortError(status, headers, payload)) {
-        return new _emberAjaxErrors.AbortError(errors);
-      } else if (this.isConflictError(status, headers, payload)) {
-        return new _emberAjaxErrors.ConflictError(errors);
-      } else if (this.isServerError(status, headers, payload)) {
-        return new _emberAjaxErrors.ServerError(errors);
       }
 
-      var detailedMessage = this.generateDetailedMessage(status, headers, payload, requestData);
-      return new _emberAjaxErrors.AjaxError(errors, detailedMessage);
+      // Allow overriding of error payload
+      payload = this.normalizeErrorResponse(status, headers, payload);
+
+      return this._createCorrectError(status, headers, payload, requestData);
     },
+    _createCorrectError: function _createCorrectError(status, headers, payload, requestData) {
+      var error = void 0;
+
+      if (this.isUnauthorizedError(status, headers, payload)) {
+        error = new _errors.UnauthorizedError(payload);
+      } else if (this.isForbiddenError(status, headers, payload)) {
+        error = new _errors.ForbiddenError(payload);
+      } else if (this.isInvalidError(status, headers, payload)) {
+        error = new _errors.InvalidError(payload);
+      } else if (this.isBadRequestError(status, headers, payload)) {
+        error = new _errors.BadRequestError(payload);
+      } else if (this.isNotFoundError(status, headers, payload)) {
+        error = new _errors.NotFoundError(payload);
+      } else if (this.isAbortError(status, headers, payload)) {
+        error = new _errors.AbortError(payload);
+      } else if (this.isConflictError(status, headers, payload)) {
+        error = new _errors.ConflictError(payload);
+      } else if (this.isServerError(status, headers, payload)) {
+        error = new _errors.ServerError(payload, status);
+      } else {
+        var detailedMessage = this.generateDetailedMessage(status, headers, payload, requestData);
+
+        error = new _errors.AjaxError(payload, detailedMessage, status);
+      }
+
+      return error;
+    },
+
 
     /**
      * Match the host to a provided array of strings or regexes that can match to a host
@@ -69578,6 +70055,7 @@ createDeprecatedModule('resolver');
       }
     },
 
+
     /**
      * Determine whether the headers should be added for this request
      *
@@ -69597,31 +70075,35 @@ createDeprecatedModule('resolver');
      * @property {Object} hash request options hash
      * @returns {Boolean} whether or not headers should be sent
      */
-    _shouldSendHeaders: function _shouldSendHeaders(_ref3) {
-      var _this3 = this;
+    _shouldSendHeaders: function _shouldSendHeaders(_ref4) {
+      var _this2 = this;
 
-      var url = _ref3.url;
-      var host = _ref3.host;
+      var url = _ref4.url,
+          host = _ref4.host;
 
       url = url || '';
-      host = host || get(this, 'host') || '';
+      host = host || Ember.get(this, 'host') || '';
 
-      var urlObject = new _emberAjaxUtilsUrlHelpers.RequestURL(url);
-      var trustedHosts = get(this, 'trustedHosts') || A();
+      var trustedHosts = Ember.get(this, 'trustedHosts') || Ember.A();
+
+      var _parseURL = (0, _urlHelpers.parseURL)(url),
+          hostname = _parseURL.hostname;
 
       // Add headers on relative URLs
-      if (!urlObject.isComplete) {
+
+
+      if (!(0, _urlHelpers.isFullURL)(url)) {
         return true;
       } else if (trustedHosts.find(function (matcher) {
-        return _this3._matchHosts(urlObject.hostname, matcher);
+        return _this2._matchHosts(hostname, matcher);
       })) {
         return true;
       }
 
       // Add headers on matching host
-      var hostObject = new _emberAjaxUtilsUrlHelpers.RequestURL(host);
-      return urlObject.sameHost(hostObject);
+      return (0, _urlHelpers.haveSameHost)(url, host);
     },
+
 
     /**
      * Generates a detailed ("friendly") error message, with plenty
@@ -69636,8 +70118,8 @@ createDeprecatedModule('resolver');
      * @return {Object} request information
      */
     generateDetailedMessage: function generateDetailedMessage(status, headers, payload, requestData) {
-      var shortenedPayload = undefined;
-      var payloadContentType = (0, _emberAjaxUtilsGetHeader['default'])(headers, 'Content-Type') || 'Empty Content-Type';
+      var shortenedPayload = void 0;
+      var payloadContentType = (0, _getHeader.default)(headers, 'Content-Type') || 'Empty Content-Type';
 
       if (payloadContentType.toLowerCase() === 'text/html' && payload.length > 250) {
         shortenedPayload = '[Omitted Lengthy HTML]';
@@ -69651,6 +70133,7 @@ createDeprecatedModule('resolver');
       return ['Ember AJAX Request ' + requestDescription + ' returned a ' + status, payloadDescription, shortenedPayload].join('\n');
     },
 
+
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
      * response is a an authorized error.
@@ -69663,8 +70146,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isUnauthorizedError: function isUnauthorizedError(status) {
-      return (0, _emberAjaxErrors.isUnauthorizedError)(status);
+      return (0, _errors.isUnauthorizedError)(status);
     },
+
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
@@ -69678,8 +70162,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isForbiddenError: function isForbiddenError(status) {
-      return (0, _emberAjaxErrors.isForbiddenError)(status);
+      return (0, _errors.isForbiddenError)(status);
     },
+
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
@@ -69693,8 +70178,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isInvalidError: function isInvalidError(status) {
-      return (0, _emberAjaxErrors.isInvalidError)(status);
+      return (0, _errors.isInvalidError)(status);
     },
+
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
@@ -69708,8 +70194,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isBadRequestError: function isBadRequestError(status) {
-      return (0, _emberAjaxErrors.isBadRequestError)(status);
+      return (0, _errors.isBadRequestError)(status);
     },
+
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
@@ -69723,8 +70210,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isNotFoundError: function isNotFoundError(status) {
-      return (0, _emberAjaxErrors.isNotFoundError)(status);
+      return (0, _errors.isNotFoundError)(status);
     },
+
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
@@ -69738,8 +70226,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isAbortError: function isAbortError(status) {
-      return (0, _emberAjaxErrors.isAbortError)(status);
+      return (0, _errors.isAbortError)(status);
     },
+
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
@@ -69753,8 +70242,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isConflictError: function isConflictError(status) {
-      return (0, _emberAjaxErrors.isConflictError)(status);
+      return (0, _errors.isConflictError)(status);
     },
+
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
@@ -69768,8 +70258,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isServerError: function isServerError(status) {
-      return (0, _emberAjaxErrors.isServerError)(status);
+      return (0, _errors.isServerError)(status);
     },
+
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
@@ -69783,8 +70274,9 @@ createDeprecatedModule('resolver');
      * @return {Boolean}
      */
     isSuccess: function isSuccess(status) {
-      return (0, _emberAjaxErrors.isSuccess)(status);
+      return (0, _errors.isSuccess)(status);
     },
+
 
     /**
      * @method parseErrorResponse
@@ -69800,6 +70292,80 @@ createDeprecatedModule('resolver');
       }
     },
 
+
+    /**
+     * Can be overwritten to allow re-formatting of error messages
+     *
+     * @method normalizeErrorResponse
+     * @private
+     * @param  {Number} status
+     * @param  {Object} headers
+     * @param  {Object} payload
+     * @return {*} error response
+     */
+    normalizeErrorResponse: function normalizeErrorResponse(status, headers, payload) {
+      return payload;
+    }
+  });
+});
+;define('ember-ajax/mixins/ajax-support', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Ember.Mixin.create({
+    /**
+     * The AJAX service to send requests through
+     *
+     * @property {AjaxService} ajaxService
+     * @public
+     */
+    ajaxService: Ember.inject.service('ajax'),
+
+    /**
+     * @property {string} host
+     * @public
+     */
+    host: Ember.computed.alias('ajaxService.host'),
+
+    /**
+     * @property {string} namespace
+     * @public
+     */
+    namespace: Ember.computed.alias('ajaxService.namespace'),
+
+    /**
+     * @property {object} headers
+     * @public
+     */
+    headers: Ember.computed.alias('ajaxService.headers'),
+
+    ajax: function ajax(url) {
+      var augmentedOptions = this.ajaxOptions.apply(this, arguments);
+
+      return this.get('ajaxService').request(url, augmentedOptions);
+    }
+  });
+});
+;define('ember-ajax/mixins/legacy/normalize-error-response', ['exports', 'ember-ajax/-private/utils/is-string'], function (exports, _isString) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
+
+  function isObject(object) {
+    return (typeof object === 'undefined' ? 'undefined' : _typeof(object)) === 'object';
+  }
+
+  exports.default = Ember.Mixin.create({
     /**
      * Normalize the error from the server into the same format
      *
@@ -69836,10 +70402,12 @@ createDeprecatedModule('resolver');
      * @return {Array} An array of JSON API-formatted error objects
      */
     normalizeErrorResponse: function normalizeErrorResponse(status, headers, payload) {
-      if (isArray(payload.errors)) {
+      payload = Ember.isNone(payload) ? {} : payload;
+
+      if (Ember.isArray(payload.errors)) {
         return payload.errors.map(function (error) {
           if (isObject(error)) {
-            var ret = merge({}, error);
+            var ret = Ember.merge({}, error);
             ret.status = '' + error.status;
             return ret;
           } else {
@@ -69849,7 +70417,7 @@ createDeprecatedModule('resolver');
             };
           }
         });
-      } else if (isArray(payload)) {
+      } else if (Ember.isArray(payload)) {
         return payload.map(function (error) {
           if (isObject(error)) {
             return {
@@ -69864,66 +70432,29 @@ createDeprecatedModule('resolver');
             };
           }
         });
+      } else if ((0, _isString.default)(payload)) {
+        return [{
+          status: '' + status,
+          title: payload
+        }];
       } else {
-        if (isString(payload)) {
-          return [{
-            status: '' + status,
-            title: payload
-          }];
-        } else {
-          return [{
-            status: '' + status,
-            title: payload.title || 'The backend responded with an error',
-            detail: payload
-          }];
-        }
+        return [{
+          status: '' + status,
+          title: payload.title || 'The backend responded with an error',
+          detail: payload
+        }];
       }
     }
   });
 });
-;define('ember-ajax/mixins/ajax-support', ['exports', 'ember'], function (exports, _ember) {
-  var Mixin = _ember['default'].Mixin;
-  var service = _ember['default'].inject.service;
-  var alias = _ember['default'].computed.alias;
-  exports['default'] = Mixin.create({
+;define('ember-ajax/raw', ['exports', 'ember-ajax/ajax-request'], function (exports, _ajaxRequest) {
+  'use strict';
 
-    /**
-     * The AJAX service to send requests through
-     *
-     * @property {AjaxService} ajaxService
-     * @public
-     */
-    ajaxService: service('ajax'),
-
-    /**
-     * @property {string} host
-     * @public
-     */
-    host: alias('ajaxService.host'),
-
-    /**
-     * @property {string} namespace
-     * @public
-     */
-    namespace: alias('ajaxService.namespace'),
-
-    /**
-     * @property {object} headers
-     * @public
-     */
-    headers: alias('ajaxService.headers'),
-
-    ajax: function ajax(url, type) {
-      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-      var augmentedOptions = this.ajaxOptions.apply(this, arguments);
-
-      return this.get('ajaxService').request(url, augmentedOptions);
-    }
+  Object.defineProperty(exports, "__esModule", {
+    value: true
   });
-});
-;define('ember-ajax/raw', ['exports', 'ember-ajax/ajax-request'], function (exports, _emberAjaxAjaxRequest) {
-  exports['default'] = raw;
+  exports.default = raw;
+
 
   /**
    * Same as `request` except it resolves an object with
@@ -69934,14 +70465,19 @@ createDeprecatedModule('resolver');
    *
    * @public
    */
-
   function raw() {
-    var ajax = new _emberAjaxAjaxRequest['default']();
+    var ajax = new _ajaxRequest.default();
     return ajax.raw.apply(ajax, arguments);
   }
 });
-;define('ember-ajax/request', ['exports', 'ember-ajax/ajax-request'], function (exports, _emberAjaxAjaxRequest) {
-  exports['default'] = request;
+;define('ember-ajax/request', ['exports', 'ember-ajax/ajax-request'], function (exports, _ajaxRequest) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = request;
+
 
   /**
    * Helper function that allows you to use the default `ember-ajax` to make
@@ -69953,215 +70489,27 @@ createDeprecatedModule('resolver');
    *
    * @public
    */
-
   function request() {
-    var ajax = new _emberAjaxAjaxRequest['default']();
+    var ajax = new _ajaxRequest.default();
     return ajax.request.apply(ajax, arguments);
   }
 });
-;define('ember-ajax/services/ajax', ['exports', 'ember', 'ember-ajax/mixins/ajax-request'], function (exports, _ember, _emberAjaxMixinsAjaxRequest) {
-  var Service = _ember['default'].Service;
-  exports['default'] = Service.extend(_emberAjaxMixinsAjaxRequest['default']);
+;define('ember-ajax/services/ajax', ['exports', 'ember-ajax/mixins/ajax-request'], function (exports, _ajaxRequest) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Ember.Service.extend(_ajaxRequest.default);
 });
-;define('ember-ajax/utils/ajax', ['exports', 'ember', 'ember-ajax/utils/is-fastboot'], function (exports, _ember, _emberAjaxUtilsIsFastboot) {
-  var $ = _ember['default'].$;
-  exports['default'] = _emberAjaxUtilsIsFastboot['default'] ? najax : $.ajax;
+;define('ember-ajax/utils/ajax', ['exports', 'ember-ajax/-private/utils/is-fastboot'], function (exports, _isFastboot) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = _isFastboot.default ? najax : Ember.$.ajax;
 });
-/* global najax */
-;define('ember-ajax/utils/get-header', ['exports', 'ember'], function (exports, _ember) {
-  exports['default'] = getHeader;
-  var A = _ember['default'].A;
-  var isNone = _ember['default'].isNone;
-
-  /**
-   * Do a case-insensitive lookup of an HTTP header
-   *
-   * @function getHeader
-   * @private
-   * @param {Object} headers
-   * @param {string} name
-   * @return {string}
-   */
-
-  function getHeader(headers, name) {
-    if (isNone(headers) || isNone(name)) {
-      return; // ask for nothing, get nothing.
-    }
-
-    var matchedKey = A(Object.keys(headers)).find(function (key) {
-      return key.toLowerCase() === name.toLowerCase();
-    });
-
-    return headers[matchedKey];
-  }
-});
-;define('ember-ajax/utils/is-fastboot', ['exports'], function (exports) {
-  /* global FastBoot */
-  var isFastBoot = typeof FastBoot !== 'undefined';
-  exports['default'] = isFastBoot;
-});
-;define('ember-ajax/utils/parse-response-headers', ['exports'], function (exports) {
-  exports['default'] = parseResponseHeaders;
-
-  function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
-
-  var CLRF = '\r\n';
-
-  function parseResponseHeaders(headersString) {
-    var headers = {};
-
-    if (!headersString) {
-      return headers;
-    }
-
-    var headerPairs = headersString.split(CLRF);
-
-    headerPairs.forEach(function (header) {
-      var _header$split = header.split(':');
-
-      var _header$split2 = _toArray(_header$split);
-
-      var field = _header$split2[0];
-
-      var value = _header$split2.slice(1);
-
-      field = field.trim();
-      value = value.join(':').trim();
-
-      if (value) {
-        headers[field] = value;
-      }
-    });
-
-    return headers;
-  }
-});
-;define('ember-ajax/utils/url-helpers', ['exports', 'ember-ajax/utils/is-fastboot'], function (exports, _emberAjaxUtilsIsFastboot) {
-  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  var completeUrlRegex = /^(http|https)/;
-
-  /*
-   * Isomorphic URL parsing
-   * Borrowed from
-   * http://www.sitepoint.com/url-parsing-isomorphic-javascript/
-   */
-  var isNode = typeof module === 'object' && module.exports;
-  var url = getUrlModule();
-
-  /**
-   * Get the node url module or an anchor element
-   *
-   * @function getUrlModule
-   * @private
-   * @return {Object|HTMLAnchorElement} Object to parse urls
-   */
-  function getUrlModule() {
-    if (_emberAjaxUtilsIsFastboot['default']) {
-      // ember-fastboot-server provides the node url module as URL global
-      return URL;
-    }
-
-    if (isNode) {
-      return require('url');
-    }
-
-    return document.createElement('a');
-  }
-
-  /**
-   * Parse a URL string into an object that defines its structure
-   *
-   * The returned object will have the following properties:
-   *
-   *   href: the full URL
-   *   protocol: the request protocol
-   *   hostname: the target for the request
-   *   port: the port for the request
-   *   pathname: any URL after the host
-   *   search: query parameters
-   *   hash: the URL hash
-   *
-   * @function parseUrl
-   * @private
-   * @param {string} str The string to parse
-   * @return {Object} URL structure
-   */
-  function parseUrl(str) {
-    var fullObject = undefined;
-    if (isNode || _emberAjaxUtilsIsFastboot['default']) {
-      fullObject = url.parse(str);
-    } else {
-      url.href = str;
-      fullObject = url;
-    }
-    var desiredProps = {};
-    desiredProps.href = fullObject.href;
-    desiredProps.protocol = fullObject.protocol;
-    desiredProps.hostname = fullObject.hostname;
-    desiredProps.port = fullObject.port;
-    desiredProps.pathname = fullObject.pathname;
-    desiredProps.search = fullObject.search;
-    desiredProps.hash = fullObject.hash;
-    return desiredProps;
-  }
-
-  /**
-   * RequestURL
-   *
-   * Converts a URL string into an object for easy comparison to other URLs
-   *
-   * @public
-   */
-
-  var RequestURL = (function () {
-    function RequestURL(url) {
-      _classCallCheck(this, RequestURL);
-
-      this.url = url;
-    }
-
-    _createClass(RequestURL, [{
-      key: 'sameHost',
-      value: function sameHost(other) {
-        var _this = this;
-
-        return ['protocol', 'hostname', 'port'].reduce(function (previous, prop) {
-          return previous && _this[prop] === other[prop];
-        }, true);
-      }
-    }, {
-      key: 'url',
-      get: function get() {
-        return this._url;
-      },
-      set: function set(value) {
-        this._url = value;
-
-        var explodedUrl = parseUrl(value);
-        for (var prop in explodedUrl) {
-          if (({}).hasOwnProperty.call(explodedUrl, prop)) {
-            this[prop] = explodedUrl[prop];
-          }
-        }
-
-        return this._url;
-      }
-    }, {
-      key: 'isComplete',
-      get: function get() {
-        return this.url.match(completeUrlRegex);
-      }
-    }]);
-
-    return RequestURL;
-  })();
-
-  exports.RequestURL = RequestURL;
-});
-/* global require, module, URL */
 ;define('ember-cli-app-version/initializer-factory', ['exports'], function (exports) {
   'use strict';
 
@@ -70191,6 +70539,609 @@ createDeprecatedModule('resolver');
   });
   var versionRegExp = exports.versionRegExp = /\d[.]\d[.]\d/;
   var shaRegExp = exports.shaRegExp = /[a-z\d]{8}/;
+});
+;define('ember-cli-notifications/components/notification-container', ['exports', 'ember-cli-notifications/templates/components/notification-container', 'ember-cli-notifications/styles/components/notification-container'], function (exports, _notificationContainer, _notificationContainer2) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Ember.Component.extend({
+    layout: _notificationContainer.default,
+    styles: _notificationContainer2.default,
+
+    classNameBindings: ['computedPosition'],
+    attributeBindings: ['computedStyle:style'],
+
+    zindex: '1060',
+
+    computedPosition: Ember.computed('position', function () {
+      if (this.get('position')) return this.get('styles.c-notification__container--' + this.get('position'));
+
+      return this.get('styles.c-notification__container--top');
+    }),
+
+    computedStyle: Ember.computed('zindex', function () {
+      return Ember.String.htmlSafe('z-index: ' + this.get('zindex') + ';');
+    })
+  });
+});
+;define('ember-cli-notifications/components/notification-message', ['exports', 'ember-cli-notifications/templates/components/notification-message', 'ember-cli-notifications/styles/components/notification-message'], function (exports, _notificationMessage, _notificationMessage2) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Ember.Component.extend({
+    layout: _notificationMessage.default,
+    styles: _notificationMessage2.default,
+
+    classNameBindings: ['dismissClass', 'clickableClass', 'processedType', 'notification.cssClasses'],
+
+    paused: false,
+
+    dismissClass: Ember.computed('notification.dismiss', function () {
+      if (!this.get('notification.dismiss')) return this.get('styles.c-notification--in');
+
+      return false;
+    }),
+
+    clickableClass: Ember.computed('notification.onClick', function () {
+      if (this.get('notification.onClick')) return this.get('styles.c-notification--clickable');
+
+      return false;
+    }),
+
+    canShowSVG: Ember.computed.equal('icons', 'svg'),
+
+    closeIcon: Ember.computed('icons', function () {
+      var icons = this.get('icons');
+      if (icons === 'bootstrap') return 'glyphicon glyphicon-remove';
+
+      if (icons === 'svg') return 'close';
+
+      return 'fa fa-times';
+    }),
+
+    // Set icon depending on notification type
+    notificationIcon: Ember.computed('notification.type', 'icons', function () {
+      var icons = this.get('icons');
+
+      if (icons == 'svg') return Ember.get(this.get('svgs'), this.get('notification.type'));
+
+      if (icons === 'bootstrap') {
+        switch (this.get('notification.type')) {
+          case "info":
+            return 'glyphicon glyphicon-info-sign';
+          case "success":
+            return 'glyphicon glyphicon-ok-sign';
+          case "warning":
+          case "error":
+            return 'glyphicon glyphicon-exclamation-sign';
+        }
+      }
+
+      switch (this.get('notification.type')) {
+        case "info":
+          return 'fa fa-info-circle';
+        case "success":
+          return 'fa fa-check';
+        case "warning":
+          return 'fa fa-warning';
+        case "error":
+          return 'fa fa-exclamation-circle';
+      }
+    }),
+
+    mouseDown: function mouseDown() {
+      if (this.get('notification.onClick')) {
+        this.get('notification.onClick')(this.get('notification'));
+      }
+    },
+    mouseEnter: function mouseEnter() {
+      if (this.get('notification.autoClear')) {
+        this.set('paused', true);
+        this.notifications.pauseAutoClear(this.get('notification'));
+      }
+    },
+    mouseLeave: function mouseLeave() {
+      if (this.get('notification.autoClear')) {
+        this.set('paused', false);
+        this.notifications.setupAutoClear(this.get('notification'));
+      }
+    },
+
+
+    processedType: Ember.computed('notification.type', function () {
+      if (this.get('notification.type') && Ember.A(['info', 'success', 'warning', 'error']).includes(this.get('notification.type'))) {
+        return this.get('styles.c-notification--' + this.get('notification.type'));
+      }
+    }),
+
+    // Apply the clear animation duration rule inline
+    notificationClearDuration: Ember.computed('paused', 'notification.clearDuration', function () {
+      var duration = Ember.Handlebars.Utils.escapeExpression(this.get('notification.clearDuration'));
+      var playState = this.get('paused') ? 'paused' : 'running';
+      return Ember.String.htmlSafe('animation-duration: ' + duration + 'ms; -webkit-animation-duration: ' + duration + 'ms; animation-play-state: ' + playState + '; -webkit-animation-play-state: ' + playState);
+    }),
+
+    actions: {
+      removeNotification: function removeNotification() {
+        this.notifications.removeNotification(this.get('notification'));
+      }
+    }
+  });
+});
+;define('ember-cli-notifications/services/notification-messages-service', ['exports', 'ember-get-config'], function (exports, _emberGetConfig) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+
+  var notificationAssign = Ember.assign || Ember.merge;
+  var globals = _emberGetConfig.default['ember-cli-notifications']; // Import app config object
+
+  var NotificationMessagesService = Ember.ArrayProxy.extend({
+    content: Ember.A(),
+
+    addNotification: function addNotification(options) {
+      // If no message is set, throw an error
+      if (!options.message) {
+        throw new Error("No notification message set");
+      }
+
+      var notification = Ember.Object.create({
+        message: options.message,
+        type: options.type || 'info',
+        autoClear: Ember.isEmpty(options.autoClear) ? Ember.getWithDefault(globals, 'autoClear', false) : options.autoClear,
+        clearDuration: options.clearDuration || Ember.getWithDefault(globals, 'clearDuration', 5000),
+        onClick: options.onClick,
+        htmlContent: options.htmlContent || false,
+        cssClasses: options.cssClasses
+      });
+
+      this.pushObject(notification);
+
+      if (notification.autoClear) {
+        notification.set('remaining', notification.get('clearDuration'));
+
+        this.setupAutoClear(notification);
+      }
+
+      return notification;
+    },
+    error: function error(message, options) {
+      return this.addNotification(notificationAssign({
+        message: message,
+        type: 'error'
+      }, options));
+    },
+    success: function success(message, options) {
+      return this.addNotification(notificationAssign({
+        message: message,
+        type: 'success'
+      }, options));
+    },
+    info: function info(message, options) {
+      return this.addNotification(notificationAssign({
+        message: message,
+        type: 'info'
+      }, options));
+    },
+    warning: function warning(message, options) {
+      return this.addNotification(notificationAssign({
+        message: message,
+        type: 'warning'
+      }, options));
+    },
+    removeNotification: function removeNotification(notification) {
+      var _this = this;
+
+      if (!notification) {
+        return;
+      }
+
+      notification.set('dismiss', true);
+
+      // Delay removal from DOM for dismissal animation
+      Ember.run.later(this, function () {
+        _this.removeObject(notification);
+      }, 500);
+    },
+    setupAutoClear: function setupAutoClear(notification) {
+      var _this2 = this;
+
+      notification.set('startTime', Date.now());
+
+      var timer = Ember.run.later(this, function () {
+        // Hasn't been closed manually
+        if (_this2.indexOf(notification) >= 0) {
+          _this2.removeNotification(notification);
+        }
+      }, notification.get('remaining'));
+
+      notification.set('timer', timer);
+    },
+    pauseAutoClear: function pauseAutoClear(notification) {
+      Ember.run.cancel(notification.get('timer'));
+
+      var elapsed = Date.now() - notification.get('startTime');
+      var remaining = notification.get('clearDuration') - elapsed;
+
+      notification.set('remaining', remaining);
+    },
+    clearAll: function clearAll() {
+      var _this3 = this;
+
+      this.get('content').forEach(function (notification) {
+        _this3.removeNotification(notification);
+      });
+
+      return this;
+    }
+  });
+
+  NotificationMessagesService.reopenClass({
+    isServiceFactory: true
+  });
+
+  exports.default = NotificationMessagesService;
+});
+;define("ember-cli-notifications/styles/addon", ["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = {
+    "--green": "#64ce83",
+    "--blue": "#3ea2ff",
+    "--orange": "#ff7f48",
+    "--red": "#e74c3c",
+    "--spacing-1": ".5rem",
+    "--spacing-2": "1rem"
+  };
+});
+;define("ember-cli-notifications/styles/components/notification-container", ["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = {
+    "--container-position": "10px",
+    "--container-width": "80%",
+    "--container-max-with": "400px",
+    "c-notification__container": "_c-notification__container_rc8i2a",
+    "c-notification__container--top": "_c-notification__container--top_rc8i2a _c-notification__container_rc8i2a",
+    "c-notification__container--top-left": "_c-notification__container--top-left_rc8i2a _c-notification__container_rc8i2a",
+    "c-notification__container--top-right": "_c-notification__container--top-right_rc8i2a _c-notification__container_rc8i2a",
+    "c-notification__container--bottom": "_c-notification__container--bottom_rc8i2a _c-notification__container_rc8i2a",
+    "c-notification__container--bottom-left": "_c-notification__container--bottom-left_rc8i2a _c-notification__container_rc8i2a",
+    "c-notification__container--bottom-right": "_c-notification__container--bottom-right_rc8i2a _c-notification__container_rc8i2a"
+  };
+});
+;define("ember-cli-notifications/styles/components/notification-message", ["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = {
+    "--icon-width": "30px",
+    "--icon-position": "10px",
+    "--icon-color": "color(#fff a(.74))",
+    "--icon-lighten-background": "color(#fff a(.2))",
+    "--countdown-lighten-background": "color(#fff a(.4))",
+    "--notification-max-height": "800px",
+    "--notification-border-radius": "3px",
+    "--red": "#e74c3c",
+    "--blue": "#3ea2ff",
+    "--green": "#64ce83",
+    "--orange": "#ff7f48",
+    "--spacing-1": ".5rem",
+    "--spacing-2": "1rem",
+    "c-notification": "_c-notification_of6y9q",
+    "notification-hide": "_notification-hide_of6y9q",
+    "notification-shrink": "_notification-shrink_of6y9q",
+    "c-notification--clickable": "_c-notification--clickable_of6y9q",
+    "c-notification--in": "_c-notification--in_of6y9q",
+    "notification-show": "_notification-show_of6y9q",
+    "c-notification__content": "_c-notification__content_of6y9q",
+    "c-notification__icon": "_c-notification__icon_of6y9q",
+    "c-notification__icon_svg": "_c-notification__icon_svg_of6y9q",
+    "c-notification__close": "_c-notification__close_of6y9q",
+    "c-notification__close_svg": "_c-notification__close_svg_of6y9q",
+    "c-notification__countdown": "_c-notification__countdown_of6y9q",
+    "notification-countdown": "_notification-countdown_of6y9q",
+    "c-notification--info": "_c-notification--info_of6y9q _c-notification_of6y9q",
+    "c-notification--success": "_c-notification--success_of6y9q _c-notification_of6y9q",
+    "c-notification--warning": "_c-notification--warning_of6y9q _c-notification_of6y9q",
+    "c-notification--error": "_c-notification--error_of6y9q _c-notification_of6y9q"
+  };
+});
+;define("ember-cli-notifications/templates/components/notification-container", ["exports"], function (exports) {
+  "use strict";
+
+  exports.__esModule = true;
+  exports.default = Ember.HTMLBars.template({ "id": "kXzd0N9c", "block": "{\"symbols\":[\"notification\"],\"statements\":[[4,\"each\",[[20,[\"notifications\"]]],null,{\"statements\":[[0,\"  \"],[1,[25,\"notification-message\",null,[[\"notification\"],[[19,1,[]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "ember-cli-notifications/templates/components/notification-container.hbs" } });
+});
+;define("ember-cli-notifications/templates/components/notification-message", ["exports"], function (exports) {
+  "use strict";
+
+  exports.__esModule = true;
+  exports.default = Ember.HTMLBars.template({ "id": "GOimrUzH", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[10,\"class\",[26,[[25,\"unbound\",[[20,[\"__styles__\",\"c-notification__icon\"]]],null]]]],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canShowSVG\"]]],null,{\"statements\":[[0,\"    \"],[1,[25,\"inline-svg\",[[20,[\"notificationIcon\"]]],[[\"class\"],[[25,\"local-class\",[\"c-notification__icon_svg\"],[[\"from\"],[[25,\"unbound\",[[20,[\"__styles__\"]]],null]]]]]]],false],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"    \"],[6,\"i\"],[10,\"class\",[26,[[18,\"notificationIcon\"]]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]}],[8],[0,\"\\n\"],[6,\"div\"],[10,\"class\",[26,[[25,\"unbound\",[[20,[\"__styles__\",\"c-notification__content\"]]],null]]]],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"notification\",\"htmlContent\"]]],null,{\"statements\":[[0,\"    \"],[1,[20,[\"notification\",\"message\"]],true],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"    \"],[1,[20,[\"notification\",\"message\"]],false],[0,\"\\n\"]],\"parameters\":[]}],[0,\"  \"],[6,\"div\"],[9,\"title\",\"Dismiss this notification\"],[10,\"class\",[26,[[25,\"unbound\",[[20,[\"__styles__\",\"c-notification__close\"]]],null]]]],[3,\"action\",[[19,0,[]],\"removeNotification\"]],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canShowSVG\"]]],null,{\"statements\":[[0,\"      \"],[1,[25,\"inline-svg\",[[20,[\"closeIcon\"]]],[[\"class\"],[[25,\"local-class\",[\"c-notification__close_svg\"],[[\"from\"],[[25,\"unbound\",[[20,[\"__styles__\"]]],null]]]]]]],false],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"      \"],[6,\"i\"],[10,\"class\",[26,[[18,\"closeIcon\"]]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"  \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"notification\",\"autoClear\"]]],null,{\"statements\":[[0,\"  \"],[6,\"div\"],[10,\"style\",[18,\"notificationClearDuration\"],null],[10,\"class\",[26,[[25,\"unbound\",[[20,[\"__styles__\",\"c-notification__countdown\"]]],null]]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "ember-cli-notifications/templates/components/notification-message.hbs" } });
+});
+;define('ember-css-modules/extensions', ['ember-resolver', 'ember-css-modules/mixins/component-mixin', 'ember-css-modules/mixins/controller-mixin', 'ember-css-modules/mixins/component-lookup-mixin', 'ember-css-modules/mixins/resolver-mixin'], function (_emberResolver, _componentMixin, _controllerMixin, _componentLookupMixin, _resolverMixin) {
+  'use strict';
+
+  Ember.Component.reopen(_componentMixin.default);
+  Ember.Controller.reopen(_controllerMixin.default);
+  Ember.ComponentLookup.reopen(_componentLookupMixin.default);
+  _emberResolver.default.reopen(_resolverMixin.default);
+});
+;define('ember-css-modules/helpers/local-class', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.localClass = localClass;
+  function localClass(params, hash) {
+    (true && !('from' in hash) && Ember.assert('No source specified to local-class lookup', 'from' in hash));
+
+    if (!hash.from) {
+      return '';
+    }
+
+    var styles = resolveSource(hash.from);
+    var classes = (params[0] || '').split(/\s+/);
+
+    return classes.map(function (style) {
+      return styles[style];
+    }).filter(Boolean).join(' ');
+  }
+
+  exports.default = Ember.Helper.helper(localClass);
+
+
+  function resolveSource(source) {
+    if (typeof source === 'string') {
+      return window.require(source).default;
+    } else {
+      return source;
+    }
+  }
+});
+;define('ember-css-modules/mixins/component-lookup-mixin', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Ember.Mixin.create({
+    componentFor: function componentFor(name, owner, options) {
+      var component = this._super(name, owner, options);
+
+      // If we're doing a local lookup, don't interfere; wait for the global fallback if necessary
+      if (options && options.source) {
+        return component;
+      }
+
+      // Ensure components are always managed my the container and thus have a connection to their styles
+      if (!component && hasRegistration(owner, 'template:components/' + name)) {
+        findRegistry(owner).register('component:' + name, Ember.Component);
+        component = this._super(name, owner, options);
+      }
+
+      return component;
+    }
+  });
+
+
+  // There are like a dozen different ways of registering something across our various supported versions of Ember,
+  // all varying levels of public-ish. This threads that needle without triggering deprecation warnings.
+  function findRegistry(owner) {
+    return owner._registry || (owner.register ? owner : owner.registry);
+  }
+
+  function hasRegistration(owner, name) {
+    var registry = findRegistry(owner);
+    return registry.hasRegistration ? registry.hasRegistration(name) : registry.has(name);
+  }
+});
+;define('ember-css-modules/mixins/component-mixin', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  var _slicedToArray = function () {
+    function sliceIterator(arr, i) {
+      var _arr = [];
+      var _n = true;
+      var _d = false;
+      var _e = undefined;
+
+      try {
+        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+          _arr.push(_s.value);
+
+          if (i && _arr.length === i) break;
+        }
+      } catch (err) {
+        _d = true;
+        _e = err;
+      } finally {
+        try {
+          if (!_n && _i["return"]) _i["return"]();
+        } finally {
+          if (_d) throw _e;
+        }
+      }
+
+      return _arr;
+    }
+
+    return function (arr, i) {
+      if (Array.isArray(arr)) {
+        return arr;
+      } else if (Symbol.iterator in Object(arr)) {
+        return sliceIterator(arr, i);
+      } else {
+        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+      }
+    };
+  }();
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  exports.default = Ember.Mixin.create({
+    localClassNames: null,
+    localClassNameBindings: null,
+
+    concatenatedProperties: ['localClassNames', 'localClassNameBindings'],
+
+    init: function init() {
+      this._super();
+
+      if (this.tagName === '') return;
+
+      this.classNameBindings = [].concat(_toConsumableArray(this.classNameBindings), _toConsumableArray(localClassNames(this)), [LOCAL_CLASS_NAMES_CP]);
+
+      if (this.localClassNameBindings.length) {
+        var value = localClassNamesCP(this.localClassNameBindings, this.get('__styles__'));
+        Ember.defineProperty(this, LOCAL_CLASS_NAMES_CP, value);
+      }
+    },
+
+
+    __styles__: Ember.computed(function () {
+      // If styles is an explicitly set hash, defer to it. Otherwise, use the resolver.
+      if (this.styles && Object.getPrototypeOf(this.styles) === Object.prototype) {
+        return this.styles;
+      }
+
+      var key = this._debugContainerKey;
+      if (!key) {
+        return;
+      }
+
+      return Ember.getOwner(this).resolveRegistration('styles:components/' + key.substring(key.indexOf(':') + 1));
+    })
+  });
+
+
+  var LOCAL_CLASS_NAMES_CP = '__ecm_local_class_names__';
+
+  function localClassNames(component) {
+    return component.localClassNames.map(function (className) {
+      return '__styles__.' + className;
+    });
+  }
+
+  function localClassNamesCP(localClassNameBindings, styles) {
+    var bindings = localClassNameBindings.map(function (binding) {
+      var _binding$split = binding.split(':'),
+          _binding$split2 = _slicedToArray(_binding$split, 3),
+          property = _binding$split2[0],
+          trueStyle = _binding$split2[1],
+          falseStyle = _binding$split2[2];
+
+      var trueClasses = styles[trueStyle || Ember.String.dasherize(property)] || '';
+      var falseClasses = styles[falseStyle] || '';
+      var isBoolean = !!trueStyle;
+      return { property: property, trueClasses: trueClasses, falseClasses: falseClasses, isBoolean: isBoolean };
+    });
+
+    return Ember.computed.apply(undefined, _toConsumableArray(bindings.map(function (binding) {
+      return binding.property;
+    })).concat([function () {
+      var _this = this;
+
+      var classes = [];
+
+      bindings.forEach(function (binding) {
+        var value = _this.get(binding.property);
+        if (binding.isBoolean || typeof value !== 'string') {
+          classes.push(value ? binding.trueClasses : binding.falseClasses);
+        } else {
+          classes.push(value.split(/\s+/).map(function (key) {
+            return styles[key];
+          }).join(' '));
+        }
+      });
+
+      return classes.join(' ');
+    }]));
+  }
+});
+;define('ember-css-modules/mixins/controller-mixin', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Ember.Mixin.create({
+    __styles__: Ember.computed(function () {
+      // If styles is an explicitly set hash, defer to it. Otherwise, use the resolver.
+      if (this.styles && Object.getPrototypeOf(this.styles) === Object.prototype) {
+        return this.styles;
+      }
+
+      var key = this._debugContainerKey;
+      if (!key) {
+        return;
+      }
+
+      return Ember.getOwner(this).resolveRegistration('styles:' + key.substring(key.indexOf(':') + 1));
+    })
+  });
+});
+;define('ember-css-modules/mixins/resolver-mixin', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = Ember.Mixin.create({
+    init: function init() {
+      this._super();
+      this.pluralizedTypes.styles = 'styles';
+    },
+
+
+    podBasedLookupWithPrefix: function podBasedLookupWithPrefix(podPrefix, parsedName) {
+      var fullNameWithoutType = parsedName.fullNameWithoutType;
+
+      if (parsedName.type === 'template' || parsedName.type === 'styles') {
+        fullNameWithoutType = fullNameWithoutType.replace(/^components\//, '');
+      }
+
+      return podPrefix + '/' + fullNameWithoutType + '/' + parsedName.type;
+    }
+  });
+});
+;define('ember-get-config/index', ['exports', 'library-app/config/environment'], function (exports, _libraryAppConfigEnvironment) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _libraryAppConfigEnvironment['default'];
+    }
+  });
 });
 ;define('ember-inflector/index', ['exports', 'ember-inflector/lib/system', 'ember-inflector/lib/ext/string'], function (exports, _system) {
   'use strict';
@@ -70704,6 +71655,48 @@ createDeprecatedModule('resolver');
       return Ember.HTMLBars.makeBoundHelper(helperFunction);
     }
     return Ember.Handlebars.makeBoundHelper(helperFunction);
+  }
+});
+;define('ember-inline-svg/helpers/inline-svg', ['exports', 'ember', 'ember-inline-svg/utils/general'], function (exports, _ember, _emberInlineSvgUtilsGeneral) {
+  exports.inlineSvg = inlineSvg;
+
+  function inlineSvg(svgs, path, options) {
+    var jsonPath = (0, _emberInlineSvgUtilsGeneral.dottify)(path);
+    var svg = _ember['default'].get(svgs, jsonPath);
+
+    // TODO: Ember.get should return `null`, not `undefined`.
+    // if (svg === null && /\.svg$/.test(path))
+    if (typeof svg === "undefined" && /\.svg$/.test(path)) {
+      svg = _ember['default'].get(svgs, jsonPath.slice(0, -4));
+    }
+
+    _ember['default'].assert("No SVG found for " + path, svg);
+
+    svg = (0, _emberInlineSvgUtilsGeneral.applyClass)(svg, options['class']);
+
+    return _ember['default'].String.htmlSafe(svg);
+  }
+});
+;define('ember-inline-svg/utils/general', ['exports'], function (exports) {
+  exports.dottify = dottify;
+  exports.applyClass = applyClass;
+  // converts slash paths to dot paths so nested hash values can be fetched with Ember.get
+  // foo/bar/baz -> foo.bar.baz
+
+  function dottify(path) {
+    return (path || '').replace(/^\//g, '').replace(/\//g, '.');
+  }
+
+  // maybe this should be a component with tagName: 'svg' and strip the outer <svg> tag
+  // so we can use standard component class stuff?
+
+  function applyClass(svg, klass) {
+    if (!klass) {
+      return svg;
+    }
+
+    // now we have 2 problems...
+    return svg.replace('<svg', '<svg class="' + klass + '"');
   }
 });
 ;define('ember-load-initializers/index', ['exports'], function (exports) {
@@ -93442,5 +94435,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
     return sm;
   };
 });
+;/* global require */
+require('ember-css-modules/extensions');
+
 ;
 //# sourceMappingURL=vendor.map

@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
+  notifications: Ember.inject.service('notification-messages'),
   beforeModel() {
     if(!this.get('session.isAuthenticated')) {
      this.transitionTo('login');
@@ -12,11 +13,15 @@ export default Ember.Route.extend({
   actions:{
     save(feed){
       feed.save().then(()=>{
-        this.get('controller').set('response','Thank you For your Feedback');
+        this.get('notifications').info('Thanks For Your Feedback!', {
+          autoClear: true,
+          clearDuration: 1200
+        });
+        this.controller.setProperties({
+          'model.email': '',
+          'model.message': ''
+        });
       });
-    },
-    willTransition() {
-      this.controller.get('model').rollbackAttributes();
     }
   }
 });

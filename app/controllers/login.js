@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
+  notifications: Ember.inject.service('notification-messages'),
   actions: {
     login() {
       this.set('progress','Loading');
@@ -12,9 +13,11 @@ export default Ember.Controller.extend({
         this.set('progress', '');
         this.transitionToRoute('account');
       }).catch((error) => {
-        this.setProperties({
-          error, progress: ''
+        this.get('notifications').error(`${error}`, {
+          autoClear: true,
+          clearDuration: 3000
         });
+        this.set('progress', false);
       });
     }
   }

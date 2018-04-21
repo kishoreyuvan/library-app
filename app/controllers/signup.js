@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
+  notifications: Ember.inject.service('notification-messages'),
   firebaseApp: Ember.inject.service(),
   progress: false,
   success: false,
@@ -14,7 +15,10 @@ export default Ember.Controller.extend({
   actions: {
     signup() {
       if (!this.get('isPasswordsEqual')) {
-        this.set('error', 'Password Should be Equal')
+        this.get('notifications').warning('Passwords Should be Equal', {
+          autoClear: true,
+          clearDuration: 3000
+        });
       } else {
         var ref = this.get('firebaseApp').auth();
         var Data = this.getProperties(['email', 'password', 'name', 'department', 'year']);
@@ -38,15 +42,18 @@ export default Ember.Controller.extend({
              password: '',
              confirmpassword: ''
            });
-           Ember.run.later(() => {
-             this.transitionToRoute('login');
-           }, 500);
+           this.get('notifications').success('Account Created successfully!', {
+             autoClear: true,
+             clearDuration: 1200
+           });
+           this.transitionToRoute('login');
          });
        }).catch((error) => {
-         this.setProperties({
-           progress: false,
-           error,
+         this.get('notifications').error(`${error}`, {
+           autoClear: true,
+           clearDuration: 3000
          });
+         this.set('progress', false);
        });
      }
    }
